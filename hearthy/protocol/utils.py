@@ -18,17 +18,17 @@ def hexdump(src, length=16, sep='.', file=sys.stdout):
 
 def format_tag_value(tag, value):
     if tag == GameTag.ZONE:
-        return '{0}:{1}'.format(value, enums.Zone.reverse[value])
+        return '{0}:{1}'.format(value, Zone.reverse[value])
     elif tag == GameTag.CARDTYPE:
-        return '{0}:{1}'.format(value, enums.CardType.reverse[value])
+        return '{0}:{1}'.format(value, CardType.reverse[value])
     elif tag == GameTag.STEP or tag == GameTag.NEXT_STEP:
-        return '{0}:{1}'.format(value, enums.Step.reverse[value])
+        return '{0}:{1}'.format(value, Step.reverse[value])
     elif tag == GameTag.RARITY:
-        return '{0}:{1}'.format(value, enums.CardRarity.reverse[value])
+        return '{0}:{1}'.format(value, CardRarity.reverse[value])
     elif tag == GameTag.PLAYSTATE:
-        return '{0}:{1}'.format(value, enums.PlayState.reverse[value])
+        return '{0}:{1}'.format(value, PlayState.reverse[value])
     elif tag == GameTag.MULLIGAN_STATE:
-        return '{0}:{1}'.format(value, enums.MulliganState.reverse[value])
+        return '{0}:{1}'.format(value, MulliganState.reverse[value])
     else:
         return '{0}'.format(value)
 
