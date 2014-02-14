@@ -29,6 +29,8 @@ def format_tag_value(tag, value):
         return '{0}:{1}'.format(value, PlayState.reverse[value])
     elif tag == GameTag.MULLIGAN_STATE:
         return '{0}:{1}'.format(value, MulliganState.reverse[value])
+    elif tag == GameTag.STATE:
+        return '{0}:{1}'.format(value, TagState.reverse[value])
     else:
         return '{0}'.format(value)
 

@@ -267,3 +267,10 @@ PacketType = _enum('PacketType', [
     ('GAME_STARTING',    114),
     ('AURORA_HANDSHAKE', 168),
 ])
+
+TagState = _enum('TagState', [
+    ('INVALID',  0),
+    ('LOADING',  1),
+    ('RUNNING',  2),
+    ('COMPLETE', 3),
+])
