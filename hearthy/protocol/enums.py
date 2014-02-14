@@ -206,6 +206,11 @@ CardSet = _enum('CardSet', [
     ('CREDITS',        16)
 ])
 
+BeginPlayingMode = _enum('BeginPlayingMode', [
+    ('COUNTDOWN', 1),
+    ('READY',     2)
+])
+
 CardRarity = _enum('CardRarity', [
     ('INVALID',   0),
     ('COMMON',    1),
@@ -224,6 +229,17 @@ CardType = _enum('CardType', zip(['INVALID','GAME','PLAYER','HERO','MINION','ABI
 PlayState = _enum('PlayState', zip(['INVALID','PLAYING','WINNING','LOSING','WON','LOST','TIED','DISCONNECTED','QUIT'], range(9)))
 
 MulliganState = _enum('MulliganState', zip(['INVALID','INPUT','DEALING','WAITING','DONE'], range(5)))
+
+PowSubType = _enum('PowSubType', [
+    ('ATTACK',    1),
+    ('CONTINOUS', 2),
+    ('POWER',     3),
+    ('SCRIPT',    4),
+    ('TRIGGER',   5),
+    ('DEATHS',    6),
+    ('PLAY',      7),
+    ('FATIGUE',   8)
+])
 
 PacketType = _enum('PacketType', [
     ('GET_GAME_STATE',    1),
