@@ -16,23 +16,22 @@ def hexdump(src, length=16, sep='.', file=sys.stdout):
         lines.append('{0:08x}:  {2:{1}}  |{3}|'.format(c, length*3-1, shex, printable))
     print('\n'.join(lines), file=file)
 
+_gametag_to_enum = {
+    GameTag.ZONE: Zone,
+    GameTag.CARDTYPE: CardType,
+    GameTag.STEP: Step,
+    GameTag.NEXT_STEP: Step,
+    GameTag.RARITY: CardRarity,
+    GameTag.PLAYSTATE: PlayState,
+    GameTag.MULLIGAN_STATE: MulliganState,
+    GameTag.STATE: TagState
+}
 def format_tag_value(tag, value):
-    if tag == GameTag.ZONE:
-        return '{0}:{1}'.format(value, Zone.reverse[value])
-    elif tag == GameTag.CARDTYPE:
-        return '{0}:{1}'.format(value, CardType.reverse[value])
-    elif tag == GameTag.STEP or tag == GameTag.NEXT_STEP:
-        return '{0}:{1}'.format(value, Step.reverse[value])
-    elif tag == GameTag.RARITY:
-        return '{0}:{1}'.format(value, CardRarity.reverse[value])
-    elif tag == GameTag.PLAYSTATE:
-        return '{0}:{1}'.format(value, PlayState.reverse[value])
-    elif tag == GameTag.MULLIGAN_STATE:
-        return '{0}:{1}'.format(value, MulliganState.reverse[value])
-    elif tag == GameTag.STATE:
-        return '{0}:{1}'.format(value, TagState.reverse[value])
+    enum = _gametag_to_enum.get(tag, None)
+    if enum:
+        return '{0}:{1}'.format(value, enum.reverse[value])
     else:
-        return '{0}'.format(value)
+        return str(value)
 
 class Splitter:
     def __init__(self, max_bufsize=MAX_BUF):
