@@ -274,3 +274,12 @@ TagState = _enum('TagState', [
     ('RUNNING',  2),
     ('COMPLETE', 3),
 ])
+
+Faction = _enum('Faction', [
+    ('INVALID',  0),
+    ('HORDE',    1),
+    ('ALLIACNE', 2),
+    ('NEUTRAL',  3)
+])
+
+Race = _enum('Race', zip(['INVALID','BLOODELF','DRAENEI','DWARF','GNOME','GOBLIN','HUMAN','NIGHTELF','ORC','TAUREN','TROLL','UNDEAD','WORGEN','GOBLIN2','MURLOC','DEMON','SCOURGE','MECHANICAL','ELEMENTAL','OGRE','PET','TOTEM','NERUBIAN','PIRATE','DRAGON'], range(25)))

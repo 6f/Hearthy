@@ -24,7 +24,9 @@ _gametag_to_enum = {
     GameTag.RARITY: CardRarity,
     GameTag.PLAYSTATE: PlayState,
     GameTag.MULLIGAN_STATE: MulliganState,
-    GameTag.STATE: TagState
+    GameTag.STATE: TagState,
+    GameTag.FACTION: Faction,
+    GameTag.CARDRACE: Race
 }
 def format_tag_value(tag, value):
     enum = _gametag_to_enum.get(tag, None)
