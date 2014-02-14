@@ -57,9 +57,9 @@ report_new_connection(struct conn_params * params, struct tuple4 * addr) {
     unsigned int offset = 4;
     offset = write_uint8(header_buf, offset, EV_NEW_CONNECTION);
     offset = write_uint32(header_buf, offset, params->stream_id);
-    offset = write_uint32(header_buf, offset, addr->saddr);
+    offset = write_uint32(header_buf, offset, ntohl(addr->saddr));
     offset = write_uint16(header_buf, offset, addr->source);
-    offset = write_uint32(header_buf, offset, addr->daddr);
+    offset = write_uint32(header_buf, offset, ntohl(addr->daddr));
     offset = write_uint16(header_buf, offset, addr->dest);
     write_uint32(header_buf, 0, offset);
 
