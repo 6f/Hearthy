@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 
-def _enum(name, mapping):
+def _enum(name, definition):
+    next_id = 0
+    mapping = []
+    for entry in definition:
+        if isinstance(entry, tuple):
+            next_id = entry[1] + 1
+            mapping.append(entry)
+        else:
+            mapping.append((entry, next_id))
+            next_id += 1
     forward = dict(mapping)
     assert 'reverse' not in forward
     forward['reverse'] = dict((v,k) for k,v in forward.items())
@@ -181,8 +190,8 @@ GameTag = _enum('GameTag', [
 ])
 
 MetaType = _enum('MetaType', [
-    ('TARGET', 1),
-    ('DAMAGE', 2),
+    ('TARGET',  1),
+    ('DAMAGE',  2),
     ('HEALING', 3)
 ])
 
@@ -212,23 +221,34 @@ BeginPlayingMode = _enum('BeginPlayingMode', [
 ])
 
 CardRarity = _enum('CardRarity', [
-    ('INVALID',   0),
-    ('COMMON',    1),
-    ('FREE',      2),
-    ('RARE',      3),
-    ('EPIC',      4),
-    ('LEGENDARY', 5)
+    'INVALID', 'COMMON', 'FREE', 'RARE', 'EPIC', 'LEGENDARY'
 ])
 
-Step = _enum('Step', zip(['INVALID','BEGIN_FIRST','BEGIN_SHUFFLE','BEGIN_DRAW','BEGIN_MULLIGAN','MAIN_BEGIN','MAIN_READY','MAIN_RESOURCE','MAIN_DRAW','MAIN_START','MAIN_ACTION','MAIN_COMBAT','MAIN_END','MAIN_NEXT','FINAL_WRAPUP','FINAL_GAMEOVER','MAIN_CLEANUP','MAIN_START_TRIGGERS'], range(18)))
+Step = _enum('Step', [
+    'INVALID', 'BEGIN_FIRST', 'BEGIN_SHUFFLE', 'BEGIN_DRAW', 'BEGIN_MULLIGAN',
+    'MAIN_BEGIN', 'MAIN_READY', 'MAIN_RESOURCE', 'MAIN_DRAW', 'MAIN_START',
+    'MAIN_ACTION', 'MAIN_COMBAT', 'MAIN_END', 'MAIN_NEXT', 'FINAL_WRAPUP',
+    'FINAL_GAMEOVER', 'MAIN_CLEANUP', 'MAIN_START_TRIGGERS'
+])
 
-Zone = _enum('Zone', zip(['INVALID','PLAY','DECK','HAND','GRAVEYARD','REMOVEDFROMGAME','SETASIDE','SECRET'], range(8)))
+Zone = _enum('Zone', [
+    'INVALID', 'PLAY', 'DECK', 'HAND', 'GRAVEYARD', 'REMOVEDFROMGAME',
+    'SETASIDE', 'SECRET'
+])
 
-CardType = _enum('CardType', zip(['INVALID','GAME','PLAYER','HERO','MINION','ABILITY','ENCHANTMENT','WEAPON','ITEM','TOKEN','HERO_POWER'], range(11)))
+CardType = _enum('CardType', [
+    'INVALID', 'GAME', 'PLAYER', 'HERO', 'MINION', 'ABILITY', 'ENCHANTMENT',
+    'WEAPON', 'ITEM', 'TOKEN', 'HERO_POWER'
+])
 
-PlayState = _enum('PlayState', zip(['INVALID','PLAYING','WINNING','LOSING','WON','LOST','TIED','DISCONNECTED','QUIT'], range(9)))
+PlayState = _enum('PlayState', [
+    'INVALID', 'PLAYING', 'WINNING', 'LOSING', 'WON', 'LOST', 'TIED',
+    'DISCONNECTED', 'QUIT'
+])
 
-MulliganState = _enum('MulliganState', zip(['INVALID','INPUT','DEALING','WAITING','DONE'], range(5)))
+MulliganState = _enum('MulliganState', [
+    'INVALID', 'INPUT', 'DEALING', 'WAITING', 'DONE'
+])
 
 PowSubType = _enum('PowSubType', [
     ('ATTACK',    1),
@@ -268,18 +288,13 @@ PacketType = _enum('PacketType', [
     ('AURORA_HANDSHAKE', 168),
 ])
 
-TagState = _enum('TagState', [
-    ('INVALID',  0),
-    ('LOADING',  1),
-    ('RUNNING',  2),
-    ('COMPLETE', 3),
-])
+TagState = _enum('TagState', ['INVALID', 'LOADING', 'RUNNING', 'COMPLETE'])
 
-Faction = _enum('Faction', [
-    ('INVALID',  0),
-    ('HORDE',    1),
-    ('ALLIACNE', 2),
-    ('NEUTRAL',  3)
-])
+Faction = _enum('Faction', ['INVALID', 'HORDE', 'ALLIANCE', 'NEUTRAL'])
 
-Race = _enum('Race', zip(['INVALID','BLOODELF','DRAENEI','DWARF','GNOME','GOBLIN','HUMAN','NIGHTELF','ORC','TAUREN','TROLL','UNDEAD','WORGEN','GOBLIN2','MURLOC','DEMON','SCOURGE','MECHANICAL','ELEMENTAL','OGRE','PET','TOTEM','NERUBIAN','PIRATE','DRAGON'], range(25)))
+Race = _enum('Race', [
+    'INVALID', 'BLOODELF', 'DRAENEI', 'DWARF', 'GNOME', 'GOBLIN', 'HUMAN',
+    'NIGHTELF', 'ORC', 'TAUREN', 'TROLL', 'UNDEAD', 'WORGEN', 'GOBLIN2',
+    'MURLOC', 'DEMON', 'SCOURGE', 'MECHANICAL', 'ELEMENTAL', 'OGRE', 'PET',
+    'TOTEM', 'NERUBIAN', 'PIRATE', 'DRAGON'
+])
