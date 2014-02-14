@@ -3,7 +3,7 @@ Reference:
 https://developers.google.com/protocol-buffers/docs/encoding
 """
 
-from .exceptions import DecodeError
+from hearthy.exceptions import DecodeError
 
 _MASK = (1 << 64) - 1
 def read_varint(buf, offset=0, signed=True):

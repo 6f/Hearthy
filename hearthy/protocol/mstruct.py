@@ -1,5 +1,5 @@
 from . import serialize
-from .exceptions import DecodeError
+from hearthy.exceptions import DecodeError
 
 class MStruct:
     _mfields_ = {}
