@@ -298,3 +298,6 @@ Race = _enum('Race', [
     'MURLOC', 'DEMON', 'SCOURGE', 'MECHANICAL', 'ELEMENTAL', 'OGRE', 'PET',
     'TOTEM', 'NERUBIAN', 'PIRATE', 'DRAGON'
 ])
+
+# Enum for mtypes.Option.Type
+OptionType = _enum('OptionType', [('PASS', 1), 'END_TURN', 'POWER'])
