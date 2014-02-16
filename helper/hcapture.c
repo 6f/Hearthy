@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <inttypes.h>
+
+#include <time.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,6 +12,12 @@
 #include "nids.h"
 
 #define int_ntoa(x)	inet_ntoa(*((struct in_addr *)&x))
+
+#define EV_NEW_CONNECTION 0
+#define EV_CLOSE 1
+#define EV_DATA 2
+
+#define REPORT_HEADER_VERSION "HCaptureV0"
 
 void
 print_usage(char *name, FILE *out) {
@@ -25,8 +33,22 @@ struct conn_params {
 FILE* outfile = NULL;
 int stream_count = 0;
 uint8_t header_buf[MAX_BUF];
+int64_t reference_ts;
 
-inline unsigned int
+unsigned int
+write_uint64(uint8_t *buf, unsigned int offset, uint64_t arg) {
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff; arg >>= 8;
+    buf[offset++] = arg & 0xff;
+    return offset;
+}
+
+unsigned int
 write_uint32(uint8_t *buf, unsigned int offset, unsigned int arg) {
     buf[offset++] = arg & 0xff; arg >>= 8;
     buf[offset++] = arg & 0xff; arg >>= 8;
@@ -35,26 +57,52 @@ write_uint32(uint8_t *buf, unsigned int offset, unsigned int arg) {
     return offset;
 }
 
-inline unsigned int
+unsigned int
 write_uint16(uint8_t *buf, unsigned int offset, unsigned int arg) {
     buf[offset++] = arg & 0xff; arg >>= 8;
     buf[offset++] = arg & 0xff;
     return offset;
 }
 
-inline unsigned int
+unsigned int
 write_uint8(uint8_t *buf, unsigned int offset, unsigned int arg) {
     buf[offset++] = arg & 0xff;
     return offset;
 }
 
-#define EV_NEW_CONNECTION 0
-#define EV_CLOSE 1
-#define EV_DATA 2
+// Returns a timestamp in milliseconds, should only be used
+// for relative calculations (i.e. durations).
+// This timestamp *should* be monotonic.
+int64_t
+get_relative_timestamp(void) {
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC_RAW, &ts) != 0) {
+        return INT64_MIN;
+    }
+    return ((int64_t)ts.tv_sec) * 1000 + (ts.tv_nsec / 1000000);
+}
+
+unsigned int
+write_relative_timestamp(uint8_t *buf, unsigned int offset) {
+    int64_t diff = get_relative_timestamp() - reference_ts;
+    return write_uint64(buf, offset, (uint64_t)diff);
+}
+
+void
+report_write_header(int64_t timestamp) {
+    unsigned int offset = sizeof(REPORT_HEADER_VERSION);
+    strcpy((char*)header_buf, REPORT_HEADER_VERSION);
+    offset = write_uint64(header_buf, offset, (uint64_t)timestamp);
+
+    // TODO: check for errors
+    fwrite(header_buf, 1, offset, outfile);
+    fflush(outfile);
+}
 
 void
 report_new_connection(struct conn_params * params, struct tuple4 * addr) {
     unsigned int offset = 4;
+    offset = write_relative_timestamp(header_buf, offset);
     offset = write_uint8(header_buf, offset, EV_NEW_CONNECTION);
     offset = write_uint32(header_buf, offset, params->stream_id);
     offset = write_uint32(header_buf, offset, ntohl(addr->saddr));
@@ -71,6 +119,7 @@ report_new_connection(struct conn_params * params, struct tuple4 * addr) {
 void
 report_close(struct conn_params * params) {
     unsigned int offset = 4;
+    offset = write_relative_timestamp(header_buf, offset);
     offset = write_uint8(header_buf, offset, EV_CLOSE);
     offset = write_uint32(header_buf, offset, params->stream_id);
     write_uint32(header_buf, 0, offset);
@@ -83,6 +132,7 @@ report_close(struct conn_params * params) {
 void
 report_data(struct conn_params * params, int who, char * buf, int count) {
     unsigned int offset = 4;
+    offset = write_relative_timestamp(header_buf, offset);
     offset = write_uint8(header_buf, offset, EV_DATA);
     offset = write_uint32(header_buf, offset, params->stream_id);
     offset = write_uint8(header_buf, offset, who);
@@ -97,7 +147,7 @@ report_data(struct conn_params * params, int who, char * buf, int count) {
 void
 tcp_callback(struct tcp_stream *a_tcp, void ** param) {
     struct conn_params * params = *param;
-    if (param == NULL && a_tcp->nids_state != NIDS_JUST_EST) {
+    if (params == NULL && a_tcp->nids_state != NIDS_JUST_EST) {
         printf("Can this even happen?\n");
         return;
     }
@@ -215,6 +265,19 @@ main(int argc, char *argv[]) {
     nochksumchk.action = NIDS_DONT_CHKSUM;
 
     nids_register_chksum_ctl(&nochksumchk, 1);
+
+    // Get unix timestamp and monotonic timestamp
+    int64_t timestamp = (int64_t)time(NULL);
+
+    reference_ts = get_relative_timestamp();
+    
+    if (reference_ts == INT64_MIN) {
+        perror("clock_gettime");
+        return 1;
+    }
+
+    // write report header
+    report_write_header(timestamp);
 
     // Start main loop
     nids_register_tcp(tcp_callback);
