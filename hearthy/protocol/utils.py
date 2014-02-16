@@ -1,7 +1,8 @@
 import sys
 import struct
 
-from .enums import *
+from hearthy import exceptions
+from hearthy.protocol.enums import *
 
 # 16K ought to be enough for anybody :)
 MAX_BUF = 16 * 1024
@@ -46,6 +47,8 @@ class Splitter:
 
     def feed(self, buf):
         newoffset = self._offset + len(buf)
+        if newoffset > MAX_BUF:
+            raise exceptions.BufferFullException()
         self._buf[self._offset:newoffset] = buf
 
         while newoffset >= self._needed:
