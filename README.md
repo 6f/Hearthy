@@ -86,7 +86,7 @@ class Connection:
             
 d = {}
 with open(filename, 'rb') as f:
-    gen = hcapng.parse_hcap_stream(f)
+    gen = hcapng.parse(f)
 
     header = next(gen)
     print('Recording started at {0}'.format(

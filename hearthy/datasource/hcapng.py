@@ -77,7 +77,7 @@ def read_header(stream):
 
 MAX_EVLEN = 16*1024
 PREFIX_LEN = 13
-def parse_hcap_stream(stream):
+def parse(stream):
     timestamp = read_header(stream)
     yield EvHeader(timestamp)
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     with open(sys.argv[1], 'rb') as f:
-        gen = parse_hcap_stream(f)
+        gen = parse(f)
 
         header = next(gen)
         print('Recording started at {0}'.format(
