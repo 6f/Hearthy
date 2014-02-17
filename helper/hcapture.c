@@ -158,7 +158,7 @@ tcp_callback(struct tcp_stream *a_tcp, void ** param) {
         printf("Source: %s:%u\n", int_ntoa(a_tcp->addr.saddr), a_tcp->addr.source);
         printf("Dest: %s:%u\n", int_ntoa(a_tcp->addr.daddr), a_tcp->addr.dest);
 
-        if (a_tcp->addr.dest == 1119) {
+        if (a_tcp->addr.dest == 1119 || a_tcp->addr.dest == 3724) {
             params = malloc(sizeof(struct conn_params));
             if (params == NULL) {
                 fprintf(stderr, "Warn: malloc failed!\n");
