@@ -4,7 +4,7 @@ from hearthy.protocol.utils import format_tag_value
 from hearthy.tracker.entity import Entity, MutableEntity, MutableView
 
 class WorldTransaction:
-    def __init__(self, world, generation):
+    def __init__(self, world):
         self._world = world
         self._e = {}
 
@@ -47,7 +47,6 @@ class World:
     """
     def __init__(self):
         self._e = {}
-        self._generation = 0
         self._watchers = []
 
     def __contains__(self, eid):
@@ -60,7 +59,7 @@ class World:
         return e
 
     def transaction(self):
-        return WorldTransaction(self, self._generation)
+        return WorldTransaction(self)
 
     def _apply(self, transaction):
         # XXX: Remove all debug code
