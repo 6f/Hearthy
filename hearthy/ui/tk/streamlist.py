@@ -122,6 +122,14 @@ class StreamList:
         view.heading('#4', text='Start', anchor='w')
         view.heading('#5', text='End', anchor='w')
         view.heading('#6', text='Status', anchor='w')
+
+        view.column('#0', width=150, stretch=True)
+        view.column('#1', width=50, stretch=False)
+        view.column('#2', width=150, stretch=False)
+        view.column('#3', width=150, stretch=False)
+        view.column('#4', width=150, stretch=False)
+        view.column('#5', width=150, stretch=False)
+        view.column('#6', width=150, stretch=False)
         
         view.pack(fill='both', expand=True)
 

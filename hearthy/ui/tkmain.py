@@ -18,9 +18,13 @@ class Application(ttk.Frame):
         self._b_entities = ttk.Button(self, text='Entity Browser', command=self._on_entity_browser)
         self._streams_frame = ttk.LabelFrame(self, text='Stream List')
 
-        self._streams_frame.pack(expand=True, fill='both')
-        self._b_packets.pack()
-        self._b_entities.pack()
+        self._streams_frame.grid(columnspan=2, row=0, column=0, sticky='nsew')
+        self._b_packets.grid(row=1, column=0, sticky='nsew')
+        self._b_entities.grid(row=1, column=1, sticky='nsew')
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
     def _on_entity_browser(self):
         self._streams.open_entity_browser()
@@ -47,7 +51,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     root = tkinter.Tk()
-    root.geometry('500x500')
+    root.geometry('800x300')
     root.wm_title('MainWindow')
 
     parser = hcapng.AsyncParser()

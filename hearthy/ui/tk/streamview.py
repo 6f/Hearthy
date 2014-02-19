@@ -25,9 +25,9 @@ class StreamView:
         tree.heading('#1', text='Value', anchor='w')
         tree.heading('#2', text='Time', anchor='w')
 
-        tree.column('#0', stretch=True, width=400)
-        tree.column('#1', stretch=False, width=200)
-        tree.column('#2', stretch=False, width=100)
+        tree.column('#0', stretch=True)
+        tree.column('#1', stretch=False)
+        tree.column('#2', stretch=False)
 
         tree.tag_configure(0, background='#F0A57D')
         tree.tag_configure(1, background='#7DC8F0')
