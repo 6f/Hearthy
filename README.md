@@ -2,7 +2,11 @@
 Hearthy is a decoder for the network protocol used by [Hearthstone](http://us.battle.net/hearthstone/en/).
 This project is still in early stages of development. Only the game protocol has been implemented so far.
 
+
+## UI #
+Some basic UI tools for exploring protocol dumps are provided.
 ![tk ui](screenshots/streamview.png?raw=true)
+![tk ui](screenshots/entitybrowser.png?raw=true)
 
 ## Supported Packets ##
 The following packets are currently supported:
