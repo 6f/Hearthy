@@ -3,8 +3,8 @@ import queue
 import tkinter
 from tkinter import ttk
 
+from hearthy.ui.tk.entitybrowser import EntityBrowser
 from hearthy.ui.tk.streamlist import StreamList
-from hearthy.ui.tk.streamview import StreamView
 from hearthy.ui.common import LogGenerationThread
 
 CALLBACK_PERIOD = 100 # ms
@@ -22,10 +22,15 @@ class Application(ttk.Frame):
 
     def _build_widgets(self):
         self._b_packets = ttk.Button(self, text='View Packets', command=self._on_log_view)
+        self._b_entities = ttk.Button(self, text='Entity Browser', command=self._on_entity_browser)
         self._streams_frame = ttk.LabelFrame(self, text='Stream List')
 
         self._streams_frame.pack(expand=True, fill='both')
         self._b_packets.pack()
+        self._b_entities.pack()
+
+    def _on_entity_browser(self):
+        self._streams.open_entity_browser()
 
     def _on_log_view(self):
         self._streams.open_stream_view()
@@ -62,6 +67,6 @@ if __name__ == '__main__':
     root.wm_title('MainWindow')
 
     app = Application(sys.argv[1], master=root)
-    app.process_events()
+    root.after(CALLBACK_PERIOD, app.process_events)
     
     root.mainloop()

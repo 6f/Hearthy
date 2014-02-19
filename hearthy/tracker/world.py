@@ -48,6 +48,7 @@ class World:
     def __init__(self):
         self._e = {}
         self._watchers = []
+        self.cb = None
 
     def __contains__(self, eid):
         return eid in self._e
@@ -58,12 +59,19 @@ class World:
             raise exceptions.EntityNotFound(eid)
         return e
 
+    def __iter__(self):
+        for entity in self._e.values():
+            yield entity
+
     def transaction(self):
         return WorldTransaction(self)
 
     def _apply(self, transaction):
         # XXX: Remove all debug code
         print('== Transaction Start ==')
+        
+        self.cb(self, 'pre_apply', transaction)
+        
         for entity in transaction._e.values():
             if isinstance(entity, MutableView):
                 for key, val in entity._tags.items():

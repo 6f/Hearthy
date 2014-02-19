@@ -1,8 +1,10 @@
 import tkinter
 from tkinter import ttk
+from hearthy.tracker.processor import Processor
 
 from datetime import datetime
 
+from hearthy.ui.tk.entitybrowser import EntityBrowser
 from hearthy.ui.tk.streamview import StreamView
 
 class Stream:
@@ -38,12 +40,54 @@ class StreamList:
         self._basets = 0
         self._build_widgets()
         self._stream_views = {}
+        
+        self._entity_browsers = {}
+        self._trackers = {}
 
     def _streamview_cb(self, sv, event):
         if event == 'destroy':
             for l in self._stream_views.values():
                 if sv in l:
                     l.remove(sv)
+
+    def _entitybrowser_cb(self, eb, event):
+        if event == 'destroy':
+            to_delete = []
+            for world, l in self._entity_browsers.items():
+                if eb in l:
+                    l.remove(eb)
+
+    def _world_cb(self, world, event, *args):
+        if event == 'pre_apply':
+            for eb in self._entity_browsers.get(world, []):
+                eb.apply_transaction(*args)
+
+    def open_entity_browser(self):
+        sid = self.get_selected()
+        if sid is None:
+            return
+
+        tracker = self._trackers.get(sid, None)
+        if tracker is None:
+            stream = self._streams[sid]
+            tracker = self._trackers[sid] = Processor()
+            
+            assert tracker._world.cb is None
+            tracker._world.cb = self._world_cb
+
+            for packet in stream.packets:
+                tracker.process(packet[1], packet[0])
+
+        world = tracker._world
+        l = self._entity_browsers.get(world, None)
+        if l is None:
+            l = self._entity_browsers[world] = []
+
+        eb = EntityBrowser()
+        eb.cb = self._entitybrowser_cb
+        l.append(eb)
+        
+        eb.set_world(tracker._world)
 
     def open_stream_view(self):
         sid = self.get_selected()
@@ -105,6 +149,10 @@ class StreamList:
 
         for sv in self._stream_views.get(stream_id, []):
             sv.process_packet(packet, who, ts)
+
+        tracker = self._trackers.get(stream_id, None)
+        if tracker is not None:
+            tracker.process(who, packet)
 
     def on_close(self, stream_id, ts):
         stream = self._streams.get(stream_id, None)
