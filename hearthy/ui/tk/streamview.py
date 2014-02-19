@@ -20,7 +20,7 @@ class StreamView:
         parent.title('Stream {0}'.format(self._stream_id))
         parent.protocol('WM_DELETE_WINDOW', self._on_destroy)
 
-        tree = ttk.Treeview(parent, columns=('Name', 'Value', 'Time'))
+        tree = ttk.Treeview(parent, columns=('Value', 'Time'))
         tree.heading('#0', text='Name', anchor='w')
         tree.heading('#1', text='Value', anchor='w')
         tree.heading('#2', text='Time', anchor='w')
