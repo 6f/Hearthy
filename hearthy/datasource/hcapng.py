@@ -79,7 +79,7 @@ MAX_EVLEN = 16*1024
 PREFIX_LEN = 13
 def parse(stream):
     timestamp = read_header(stream)
-    yield EvHeader(timestamp)
+    yield (0, EvHeader(timestamp))
 
     while True:
         prefix_buf = stream.read(PREFIX_LEN)
@@ -107,6 +107,88 @@ def parse(stream):
         else:
             raise HCapException('Got unknown event type 0x{0:02x}'.format(evtype))
 
+HEADER_SIZE = len(EXPECTED_VERSION) + 8
+MAX_BUF = 64 * 1024
+class AsyncParser:
+    """
+    Parser than can be used for asynchronous parsing
+    (i.e. using asyncore or similar)
+    """
+    def __init__(self, max_buf=MAX_BUF):
+        self._buf = bytearray(max_buf)
+        self._buf_start = 0
+        self._buf_end = 0
+        self._max_buf = max_buf
+
+        self._needed = HEADER_SIZE
+        self._parser = self._read_header
+
+    def _read(self, n):
+        end = self._buf_start + n
+        buf = self._buf[self._buf_start:end]
+        self._buf_start = end
+        return buf
+
+    def _read_event(self):
+        buf = self._read(self._evlen - PREFIX_LEN)
+        evtype = self._evtype
+        evtime = self._evtime
+        
+        # read header
+        self._needed = PREFIX_LEN
+        self._parser = self._read_prefix
+
+        if evtype == EV_NEW_CONNECTION:
+            return (evtime, EvNewConnection.decode(buf))
+        elif evtype == EV_DATA:
+            return (evtime, EvData.decode(buf))
+        elif evtype == EV_CLOSE:
+            return (evtime, EvClose.decode(buf))
+        else:
+            raise HCapException('Got unknown event type 0x{0:02x}'.format(evtype))
+
+    def _read_prefix(self):
+        self._evlen, self._evtime, self._evtype = struct.unpack('<IqB', self._read(PREFIX_LEN))
+
+        # read event
+        self._needed = self._evlen - PREFIX_LEN
+        self._parser = self._read_event
+
+    def _read_header(self):
+        version = self._read(len(EXPECTED_VERSION))
+        if version != EXPECTED_VERSION:
+            raise HCapException('Expected to read {0!r} but got {1!r}'.format(
+                EXPECTED_VERSION, version))
+        
+        timestamp = struct.unpack('<q', self._read(8))[0]
+
+        self._needed = PREFIX_LEN
+        self._parser = self._read_prefix
+
+        return (0, EvHeader(timestamp))
+        
+    def feed_buf(self, buf):
+        end = self._buf_end + len(buf)
+        if end > self._max_buf:
+            raise HCapException('Buffer size exceeded')
+
+        # copy new data into buf
+        self._buf[self._buf_end:end] = buf
+        self._buf_end = end
+
+        # process data
+        while end - self._buf_start > self._needed:
+            data = self._parser()
+            if data is not None:
+                yield data
+
+        # copy to make more room
+        if end > self._max_buf // 4:
+            inbuff = end - self._buf_start
+            self._buf[:inbuff] = self._buf[self._buf_start:end]
+            self._buf_start = 0
+            self._buf_end = inbuff
+
 if __name__ == '__main__':
     import sys
     from datetime import datetime
@@ -117,9 +199,9 @@ if __name__ == '__main__':
     with open(sys.argv[1], 'rb') as f:
         gen = parse(f)
 
-        header = next(gen)
-        print('Recording started at {0}'.format(
+        _, header = next(gen)
+        print('[{0:8}] Recording started at {1}'.format(0,
             datetime.fromtimestamp(header.ts).strftime('%Y.%m.%d %H:%M:%S')))
 
         for ts, event in gen:
-            print('[{0}] {1!r}'.format(ts, event))
+            print('[{0:8}] {1!r}'.format(ts, event))

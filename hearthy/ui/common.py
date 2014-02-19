@@ -26,10 +26,33 @@ class Connection:
         print('<Connection source={0!r} dest={1!r}'.format(
             self.p[0], self.p[1]))
 
+class AsyncLogGenerator:
+    def __init__(self):
+        self._conns = {}
 
+    def process_event(self, ts, event):
+        conns = self._conns
+
+        if isinstance(event, hcapng.EvHeader):
+            yield (-1, ('basets', event.ts))
+        elif isinstance(event, hcapng.EvNewConnection):
+            conns[event.stream_id] = Connection(event.source, event.dest)
+            yield (event.stream_id, ('create', event.source, event.dest, ts))
+        elif event.stream_id in conns:
+            if isinstance(event, hcapng.EvClose):
+                yield (event.stream_id, ('close', ts))
+                del conns[event.stream_id]
+            elif isinstance(event, hcapng.EvData):
+                try:
+                    for packet in conns[event.stream_id].feed(event.who, event.data):
+                        yield (event.stream_id, ('packet', packet, event.who, ts))
+                except Exception as e:
+                    del conns[event.stream_id]
+                    yield (event.stream_id, ('exception', e))
+        
 def hcap_generate_logs(f):
     generator = hcapng.parse(f)
-    header = next(generator)
+    _, header = next(generator)
 
     conns = {}
 
