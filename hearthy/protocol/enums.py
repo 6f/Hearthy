@@ -301,3 +301,8 @@ Race = _enum('Race', [
 
 # Enum for mtypes.Option.Type
 OptionType = _enum('OptionType', [('PASS', 1), 'END_TURN', 'POWER'])
+
+GoldRewardState = _enum('GoldRewardState', [
+    'INVALID', 'ELIGIBLE', 'WRONG_GAME_TYPE', 'ALREADY_CAPPED', 'BAD_RATING',
+    'SHORT_GAME'
+])
