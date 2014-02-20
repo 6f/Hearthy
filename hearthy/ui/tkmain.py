@@ -1,7 +1,6 @@
 import tkinter
 from tkinter import ttk
 
-from hearthy.ui.tk.entitybrowser import EntityBrowser
 from hearthy.ui.tk.streamlist import StreamList
 from hearthy.ui.common import AsyncLogGenerator
 from hearthy.datasource import hcapng

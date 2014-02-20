@@ -7,21 +7,74 @@ from hearthy.tracker.entity import MutableView
 
 ALL_TAGS = sorted([x.capitalize() for x in GameTag.reverse.values()])
 
-class EntityFilter:
-    def __init__(self, filter_frame):
+class EntityFilter(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        
         self.tag = tkinter.StringVar()
         self.test = tkinter.StringVar()
         self.value = tkinter.StringVar()
-        
-        self.ctag = ttk.Combobox(filter_frame, textvariable=self.tag, state='readonly')
-        self.ctag['values'] = ALL_TAGS
-        self.ctag.bind('<<ComboboxSelected>>', self._on_tag_change)
 
-        self.ftest = ttk.Combobox(filter_frame, textvariable=self.test, state='readonly')
-        self.ftest['values'] = ('Exists', 'Not Exists', 'Equals', 'Not Equals')
+        ctag = ttk.Combobox(self, textvariable=self.tag, state='readonly')
+        ctag['values'] = ALL_TAGS
+        ctag.bind('<<ComboboxSelected>>', self._on_tag_change)
 
-        self.fvalue = ttk.Combobox(filter_frame, textvariable=self.value)
+        ftest = ttk.Combobox(self, textvariable=self.test, state='readonly')
+        ftest['values'] = ('Exists', 'Not Exists', 'Equals', 'Not Equals')
 
+        fvalue = ttk.Combobox(self, textvariable=self.value)
+        b_remove = ttk.Button(self, text='Remove', command=self._on_remove)
+
+        ctag.grid(row=0, column=0, sticky='nsew')
+        ftest.grid(row=0, column=1, sticky='nsew')
+        fvalue.grid(row=0, column=2, sticky='nsew')
+        b_remove.grid(row=0, column=3, sticky='nsew')
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+
+        self._fvalue = fvalue
+
+        self.cb = None
+
+    def get_filter_string(self):
+        tag = self.tag.get()
+        test = self.test.get()
+        value = self.value.get()
+
+        tag = GameTag.__dict__.get(tag.upper(), tag)
+        try:
+            tag = int(tag)
+        except ValueError:
+            print('Err: {0!r} is not numeric'.format(tag))
+            return
+
+        if test == 'Exists':
+            return '(x[{0}] is not None)'.format(tag)
+        elif test == 'Not Exists':
+            return '(x[{0}] is None)'.format(tag)
+
+        enum = utils._gametag_to_enum.get(tag, None)
+        if enum is not None:
+            value = enum.__dict__.get(value.upper(), value)
+
+        try:
+            value = int(value)
+        except ValueError:
+            print('Err: {0!r} is not numeric'.format(value))
+            return
+
+        if test == 'Equals':
+            return '(x[{0}] == {1})'.format(tag, value)
+        elif test == 'Not Equals':
+            return '(x[{0}] != {1})'.format(tag, value)
+
+    def _on_remove(self):
+        if self.cb is not None:
+            self.cb(self, 'remove')
+    
     def _on_tag_change(self, val):
         tagval = self.tag.get()
         numeric = GameTag.__dict__.get(tagval.upper(), None)
@@ -33,17 +86,13 @@ class EntityFilter:
         if enum is None:
             return
 
-        self.fvalue['values'] = sorted([x.capitalize() for x in enum.reverse.values()])
-
-    def set_grid_row(self, row):
-        self.ctag.grid(row=row, column=0, sticky='nsew')
-        self.ftest.grid(row=row, column=1, sticky='nsew')
-        self.fvalue.grid(row=row, column=2, sticky='nsew')
+        self._fvalue['values'] = sorted([x.capitalize() for x in enum.reverse.values()])
 
 class EntityTree:
     def __init__(self, container):
         self._build_widgets(container)
         self._world = None
+        self._filter_fun = lambda x:True
 
     def _build_widgets(self, container):
         tree = ttk.Treeview(container, columns=('Info','Value'))
@@ -77,6 +126,19 @@ class EntityTree:
     def _change_entity(self, eview):
         pre = str(eview.id) + '.'
         update_parent = False
+
+        
+        in_tree = self._tree.exists(str(eview.id))
+        does_pass = self._filter_fun(eview)
+
+        if not does_pass:
+            if in_tree:
+                self._tree.delete(str(eview.id))
+            return
+        else:
+            if not in_tree:
+                self._add_entity(eview._e)
+
         for tag, value in eview._tags.items():
             if tag < 0 or tag == 49 or tag == 50:
                 update_parent = True
@@ -96,14 +158,21 @@ class EntityTree:
             self._tree.item(str(eview.id),
                             value=(str(eview), ''))
 
+    def set_filter(self, fun):
+        self._filter_fun = fun
+        if self._world is not None:
+            self.set_world(self._world)
+
     def set_world(self, world):
         # clear tree
         dellist = list(self._tree.get_children())
-        map(self._tree.delete, dellist)
+        for item in dellist:
+            self._tree.delete(item)
 
         # rebuild tree
         for entity in world:
-            self._add_entity(entity)
+            if self._filter_fun(entity):
+                self._add_entity(entity)
 
         self._world = world
 
@@ -116,13 +185,15 @@ class EntityTree:
                 self._change_entity(entity)
             else:
                 # New Entity
-                self._add_entity(entity)
-                
+                if self._filter_fun(entity):
+                    self._add_entity(entity)
+
 class EntityBrowser:
     def __init__(self):
         self._build_widgets()
         self._filters = []
         self.cb = None
+        self._f = lambda x:True
 
     def _on_destroy(self):
         if self.cb is not None:
@@ -144,23 +215,39 @@ class EntityBrowser:
         parent.rowconfigure(0, weight=1)
         parent.columnconfigure(0, weight=1)
 
-        b_add = ttk.Button(filter_frame, text='Add Filter', command=self._add_filter)
-        b_add.grid(row=0, column=2, sticky='e')
+        button_frame = ttk.Frame(filter_frame)
+        button_frame.pack(fill='x')
+        
+        b_apply = ttk.Button(button_frame, text='Apply Filter', command=self._apply_filter)
+        b_apply.pack(side='left', expand=True, fill='x')
 
-        filter_frame.columnconfigure(0, weight=1)
-        filter_frame.columnconfigure(1, weight=1)
-        filter_frame.columnconfigure(2, weight=1)
+        b_add = ttk.Button(button_frame, text='Add Filter', command=self._add_filter)
+        b_add.pack(side='left', expand=True, fill='x')
 
         self._tree = tree
         self._filter_frame = filter_frame
-        self._b_add = b_add
+        self._button_frame = button_frame
+
+    def _apply_filter(self):
+        full = ' and '.join(filter(None, [ef.get_filter_string() for ef in self._filters]))
+        if full:
+            f = eval('lambda x: ' + full)
+        else:
+            f = lambda x:True
+        self._tree.set_filter(f)
+        
+    def _remove_filter(self, ef, event):
+        self._filters.remove(ef)
+        ef.destroy()
 
     def _add_filter(self):
         efilter = EntityFilter(self._filter_frame)
-        efilter.set_grid_row(len(self._filters))
+        efilter.pack(expand=True, fill='x')
+        efilter.cb = self._remove_filter
 
         self._filters.append(efilter)
-        self._b_add.grid(row=len(self._filters), column=2, sticky='e')
+        self._button_frame.pack_forget()
+        self._button_frame.pack(fill='x')
 
     def set_world(self, world):
         self._tree.set_world(world)
