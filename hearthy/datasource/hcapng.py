@@ -177,7 +177,7 @@ class AsyncParser:
         self._buf_end = end
 
         # process data
-        while end - self._buf_start > self._needed:
+        while end - self._buf_start >= self._needed:
             data = self._parser()
             if data is not None:
                 yield data
