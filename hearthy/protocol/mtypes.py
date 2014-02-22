@@ -3,7 +3,28 @@
 Hearhstone Message Types
 """
 
-from . import mstruct
+from hearthy.protocol import mstruct
+
+_enum = mstruct.MInteger(64, True)
+_bool = mstruct.MInteger(64, True)
+
+_int32 = mstruct.MInteger(32, True)
+_uint32 = mstruct.MInteger(32, False)
+
+_int64 = mstruct.MInteger(64, True)
+_uint64 = mstruct.MInteger(64, False)
+
+_basic_typehandler = {
+    'enum': _enum,
+    'int': _int32,
+    'bool': _int32,
+    'int32': _int32,
+    'uint32': _uint32,
+    'int64': _int64,
+    'uint64': _uint64,
+    'bytes': mstruct.MBytes,
+    'string': mstruct.MString
+}
 
 _types_to_build = []
 def _deftype(name, fields):
@@ -27,9 +48,18 @@ def _build_types():
             if tname.endswith('[]'):
                 is_array = True
                 tname = tname[:-2]
-            mfields[field[0]] = (field[1], update.get(tname, tname), is_array)
+
+            # find type handler
+            typehandler = _basic_typehandler.get(tname, None)
+            if typehandler is None:
+                typehandler = update.get(tname, None)
+                assert typehandler is not None, 'No typehandler for {0!r} found'.format(tname)
+
+            mfields[field[0]] = (field[1], typehandler, is_array)
+
         update[name]._mfields_.update(mfields)
 
+    # finally put them into the module namespace
     globals().update(update)
 
 _deftype('PowerHistory', [
@@ -47,9 +77,8 @@ _deftype('PowerHistoryData', [
     (8, 'MetaData',   'PowerHistoryMetaData')
 ])
 
-# Type: ATTACK=1, CONTINOUS, DEATHS, FATIGUE, PLAY, POWER, SCRIPT, TRIGGER
 _deftype('PowerHistoryStart', [
-    (1, 'Type',   'enum'),
+    (1, 'Type',   'enum'),  # PowSubType
     (2, 'Index',  'int32'),
     (3, 'Source', 'int32'),
     (4, 'Target', 'int32')
@@ -115,14 +144,14 @@ _deftype('BnetId', [
 ])
 
 _deftype('Player', [
-    (1, 'Id',            'int'),
+    (1, 'Id',            'int32'),
     (2, 'GameAccountId', 'BnetId'),
     (4, 'Entity',        'Entity')
 ])
 
 _deftype('PowerHistoryHide', [
-    (1, 'Entity', 'int'),
-    (2, 'Zone',   'int')
+    (1, 'Entity', 'int32'),
+    (2, 'Zone',   'int32')
 ])
 
 _deftype('PowerHistoryTagChange', [
@@ -132,7 +161,7 @@ _deftype('PowerHistoryTagChange', [
 ])
 
 _deftype('PowerHistoryEntity', [
-    (1, 'Entity', 'int'),
+    (1, 'Entity', 'int32'),
     (2, 'Name',   'string'),
     (3, 'Tags',   'Tag[]')
 ])
