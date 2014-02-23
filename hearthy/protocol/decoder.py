@@ -5,6 +5,7 @@ Hearthstone Protocol Decoder.
 import struct
 from hearthy.protocol import mtypes
 from hearthy.protocol.enums import PacketType
+from hearthy.exceptions import DecodeError, EncodeError
 
 _packet_type_map = [
     (PacketType.POWER_HISTORY, mtypes.PowerHistory),

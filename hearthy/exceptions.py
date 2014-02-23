@@ -1,3 +1,6 @@
+class EncodeError(Exception):
+    pass
+
 class DecodeError(Exception):
     pass
 
