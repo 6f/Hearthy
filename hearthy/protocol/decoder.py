@@ -2,8 +2,9 @@
 Hearthstone Protocol Decoder.
 """
 
-from . import mtypes
-from .enums import PacketType
+from hearthy.protocol import mtypes
+from hearthy.protocol.enums import PacketType
+from hearthy.exceptions import DecodeError
 
 _packet_type_handlers = {
     PacketType.POWER_HISTORY: mtypes.PowerHistory,
