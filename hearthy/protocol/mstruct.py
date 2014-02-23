@@ -46,6 +46,10 @@ class MStruct:
     _mfields_ = {}
     __slots__ = []
 
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
     def encode_buf(self, buf, offset=0):
         for k, v in self._mfields_.items():
             name, typehandler, is_array = v
