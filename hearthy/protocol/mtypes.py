@@ -14,6 +14,8 @@ _uint32 = mstruct.MInteger(32, False)
 _int64 = mstruct.MInteger(64, True)
 _uint64 = mstruct.MInteger(64, False)
 
+_fixed32 = mstruct.MFixedInteger(32, False)
+
 _basic_typehandler = {
     'enum': _enum,
     'int': _int32,
@@ -22,6 +24,7 @@ _basic_typehandler = {
     'uint32': _uint32,
     'int64': _int64,
     'uint64': _uint64,
+    'fixed32': _fixed32,
     'bytes': mstruct.MBytes,
     'string': mstruct.MString
 }
@@ -265,6 +268,128 @@ _deftype('PreLoad', [
 
 _deftype('PreCast', [
     (1, 'Entity', 'int')
+])
+
+_deftype('DebugConsoleCommand', [
+    (1, 'Command', 'string')
+])
+
+_deftype('DebugConsoleResponse', [
+    (1, 'Response', 'string'),
+    (2, 'ResponseType', 'enum') # CONSOLE_OUTPUT, LOG_MESSAGE
+])
+
+_deftype('BnetBoundService', [
+    (1, 'Hash', 'fixed32'),
+    (2, 'Id', 'uint32')
+])
+
+_deftype('BnetBindRequest', [
+    (1, 'ImportedServiceHash', 'fixed32[]'),
+    (2, 'ExportedService', 'BnetBoundService[]')
+])
+
+_deftype('BnetConnectRequest', [
+    (1, 'ClientId', 'BnetProcessId'),
+    (2, 'BindRequest', 'BnetBindRequest')
+])
+
+_deftype('BnetContentHandle', [
+    (1, 'Region', 'fixed32'),
+    (2, 'Usage', 'fixed32'),
+    (3, 'Hash', 'bytes'),
+    (4, 'ProtoUrl', 'string')
+])
+
+_deftype('BnetContentMeteringContentHandles', [
+    (1, 'List', 'BnetContentHandle[]')
+])
+
+_deftype('BnetBindResponse', [
+    (1, 'ImportedServices', 'uint32[]')
+])
+
+_deftype('BnetConnectResponse', [
+    (1, 'ServerId', 'BnetProcessId'),
+    (2, 'ClientId', 'BnetProcessId'),
+    (3, 'BindResult', 'uint32'),
+    (4, 'BindResponse', 'BnetBindResponse'),
+    (5, 'ContentHandleArray', 'BnetContentMeteringContentHandles'),
+    (6, 'ServerTime', 'uint64')
+])
+
+_deftype('BnetNoData', [
+])
+
+_deftype('BnetLogonRequest', [
+    (1, 'Program', 'string'),
+    (2, 'Platform', 'string'),
+    (3, 'Locale', 'string'),
+    (4, 'EMail', 'string'),
+    (5, 'Version', 'string'),
+    (6, 'ApplicationVersion', 'int32'),
+    (7, 'PublicComputer', 'bool'),
+    (8, 'SsoId', 'bytes'),
+    (9, 'DisconnectOnCookieFail', 'bool'),
+    (10, 'AllowLogonQueueNotifications', 'bool'),
+    (11, 'WebClientVerification', 'bool'),
+    (12, 'CachedWebCredentials', 'bytes')
+])
+
+_deftype('BnetProcessId', [
+    (1, 'Label', 'uint32'),
+    (2, 'Epoch', 'uint32')
+])
+
+_deftype('BnetObjectAddress', [
+    (1, 'Host', 'BnetProcessId'),
+    (2, 'ObjectId', 'uint64')
+])
+
+_deftype('BnetErrorInfo', [
+    (1, 'ObjectAddress', 'BnetObjectAddress'),
+    (2, 'Status', 'uint32'),
+    (3, 'ServiceHash', 'uint32'),
+    (4, 'MethodId', 'uint32')
+])
+
+_deftype('BnetModuleLoadRequest', [
+    (1, 'ModuleHandle', 'BnetContentHandle'),
+    (2, 'Message', 'bytes')
+])
+
+_deftype('BnetEncryptRequest', [
+])
+
+_deftype('BnetLogonResult', [
+    (1, 'ErrorCode', 'uint32')
+])
+
+_deftype('BnetModuleMessageRequest', [
+    (1, 'ModuleId', 'int32'),
+    (2, 'Message', 'bytes')
+])
+
+_deftype('BnetModuleNotification', [
+    (2, 'ModuleId', 'int32'),
+    (3, 'Result', 'uint32')
+])
+
+_deftype('BnetLogonQueueUpdateRequest', [
+    (1, 'Position', 'uint32'),
+    (2, 'EsimatedTime', 'uint64'),
+    (3, 'EtaDeviationInSec', 'uint64')
+])
+
+_deftype('BnetPacketHeader', [
+    (1, 'ServiceId', 'uint32'),
+    (2, 'MethodId', 'uint32'),
+    (3, 'Token', 'uint32'),
+    (4, 'ObjectId', 'uint32'),
+    (5, 'Size', 'uint32'),
+    (6, 'Status', 'uint32'),
+    (7, 'Error', 'BnetErrorInfo[]'),
+    (8, 'Timeout', 'uint64')
 ])
 
 _build_types()

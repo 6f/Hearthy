@@ -1,3 +1,4 @@
+import struct
 from hearthy.protocol import serialize
 from hearthy.exceptions import DecodeError
 
@@ -15,6 +16,28 @@ class MInteger:
             return serialize.read_varint(buf, offset, signed=self._signed)
         else:
             return serialize.read_packed_varint(buf, offset, end, self._signed)
+
+class MFixedInteger:
+    def __init__(self, nbits, signed):
+        if nbits == 32:
+            self._n_bytes = 4
+            self._s = 'i' if signed else 'I'
+        elif nbits == 64:
+            self._n_bytes = 8
+            self._s = 'q' if signed else 'Q'
+        else:
+            assert False, 'Unsupported fixed size!'
+
+    def decode_buf(self, buf, offset=0, end=None):
+        if end is None:
+            end = offset + self._n_bytes
+            return (struct.unpack('<' + self._s, buf[offset:end])[0], end)
+        else:
+            length = end - offset
+            if length % self._n_bytes != 0:
+                raise DecodeError('Not a valid packed fixed field')
+            n = length // self._n_bytes
+            return list(struct.unpack('<' + str(n) + self._s, buf[offset:end]))
 
 class MBytes:
     @classmethod
@@ -66,6 +89,8 @@ class MStruct:
                     # use packed encoding
                     buf[offset] = serialize.WTYPE_LEN_DELIM | k << 3
                     offset = self._encode_buf_val_len_delim(val, serialize.write_packed_varint, buf, offset+1)
+                elif isinstance(typehandler, MFixed):
+                    raise NotImplementedError
                 else:
                     for item in val:
                         buf[offset] = serialize.WTYPE_LEN_DELIM  | k << 3
@@ -107,11 +132,15 @@ class MStruct:
             name, typehandler, is_array = our
 
             if wtype == serialize.WTYPE_LEN_DELIM:
-                length, offset = serialize.read_varint(buf, offset + 1)
+                length, offset = serialize.read_varint(buf, offset+1)
                 val = typehandler.decode_buf(buf, offset, end=offset+length)
                 offset += length
-            else:
+            elif wtype == serialize.WTYPE_VARINT:
                 val, offset = typehandler.decode_buf(buf, offset+1)
+            elif wtype == serialize.WTYPE_FIXED32:
+                val, offset = typehandler.decode_buf(buf, offset+1)
+            else:
+                raise DecodeError('Unhandled wire type {0}'.format(wtype))
 
             if is_array:
                 if isinstance(val, list):

@@ -7,6 +7,7 @@ from hearthy.exceptions import DecodeError
 
 WTYPE_VARINT = 0     # int32, int64, uint32, uint64, sint32, sint64, bool, enum
 WTYPE_LEN_DELIM = 2  # string, bytes, embedded messages, packed repeated fields
+WTYPE_FIXED32 = 5    # fixed32, sfixed32, float
 
 _MASK = (1 << 64) - 1
 def read_varint(buf, offset=0, signed=True):

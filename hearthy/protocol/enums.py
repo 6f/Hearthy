@@ -284,6 +284,8 @@ PacketType = _enum('PacketType', [
     # GAP
     ('AUTO_LOGIN',       103),
     ('BEGIN_PLAYING',    113),
+    ('DEBUG_CONSOLE_COMMAND', 123),
+    ('DEBUG_CONSOLE_RESPONSE', 124),
     ('GAME_STARTING',    114),
     ('AURORA_HANDSHAKE', 168),
 ])
