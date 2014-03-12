@@ -130,7 +130,10 @@ _deftype('BeginPlaying', [
 _deftype('AuroraHandshake', [
     (1, 'GameHandle',   'int32'),
     (2, 'Password',     'string'),
-    (3, 'ClientHandle', 'int64')
+    (3, 'ClientHandle', 'int64'),
+    (4, 'Mission',      'int32'),
+    (5, 'Version',      'string'),
+    (6, 'Platform',     'int32')
 ])
 
 _deftype('AutoLogin', [
@@ -149,6 +152,7 @@ _deftype('BnetId', [
 _deftype('Player', [
     (1, 'Id',            'int32'),
     (2, 'GameAccountId', 'BnetId'),
+    (3, 'CardBack',      'int32'),
     (4, 'Entity',        'Entity')
 ])
 
@@ -215,7 +219,8 @@ _deftype('ChooseOption', [
     (2, 'Index',     'int32'),
     (3, 'Target',    'int32'),
     (4, 'SubOption', 'int32'),
-    (5, 'Position',  'int32')
+    (5, 'Position',  'int32'),
+    (6, 'Platform',  'int32')
 ])
 
 _deftype('Notification', [
@@ -243,7 +248,7 @@ _deftype('ClientInfo', [
 
 _deftype('GameSetup', [
     (1, 'Board',                      'string'),
-    (2, 'Clients',                    'ClientInfo[]'),
+    (2, 'Clients',                    'ClientInfo[]'), # Removed since patch 4944?
     (3, 'MaxSecretsPerPlayer',        'int'),
     (4, 'MaxFriendlyMinionPerPlayer', 'int')
 ])
