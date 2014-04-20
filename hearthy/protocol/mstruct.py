@@ -128,7 +128,7 @@ class MStruct:
 
             our = cls._mfields_.get(field_number, None)
             if our is None:
-                raise DecodeError('No field definition for slot {0}'.format(field_number))
+                raise DecodeError('No field definition for type {0!r} slot {1} wire type {2}'.format(cls.__name__, field_number, wtype))
             name, typehandler, is_array = our
 
             if wtype == serialize.WTYPE_LEN_DELIM:
