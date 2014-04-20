@@ -127,13 +127,20 @@ _deftype('BeginPlaying', [
     (1, 'Mode', 'enum')
 ])
 
+_deftype('Platform', [
+    (1, 'OS',     'int32'),
+    (2, 'Screen', 'int32'),
+    (3, 'Name',   'string')
+])
+
 _deftype('AuroraHandshake', [
     (1, 'GameHandle',   'int32'),
     (2, 'Password',     'string'),
     (3, 'ClientHandle', 'int64'),
     (4, 'Mission',      'int32'),
     (5, 'Version',      'string'),
-    (6, 'Platform',     'int32')
+    (6, 'OldPlatform',  'int32'),
+    (7, 'Platform',     'Platform')
 ])
 
 _deftype('AutoLogin', [
@@ -215,12 +222,13 @@ _deftype('ChooseEntities', [
 ])
 
 _deftype('ChooseOption', [
-    (1, 'Id',        'int32'),
-    (2, 'Index',     'int32'),
-    (3, 'Target',    'int32'),
-    (4, 'SubOption', 'int32'),
-    (5, 'Position',  'int32'),
-    (6, 'Platform',  'int32')
+    (1, 'Id',         'int32'),
+    (2, 'Index',      'int32'),
+    (3, 'Target',     'int32'),
+    (4, 'SubOption',  'int32'),
+    (5, 'Position',   'int32'),
+    (6, 'OldPlatform','int32'),
+    (7, 'Platform',   'Platform')
 ])
 
 _deftype('Notification', [
