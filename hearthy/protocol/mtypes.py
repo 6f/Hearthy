@@ -263,7 +263,10 @@ _deftype('GameSetup', [
 
 _deftype('GetGameState', [])
 
-_deftype('GiveUp', [])
+_deftype('GiveUp', [
+    (1, 'OldPlatform','int32'),
+    (2, 'Platform',   'Platform')
+])
 
 _deftype('SubOption', [
     (1, 'Id',      'int32'),

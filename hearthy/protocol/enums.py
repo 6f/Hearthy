@@ -161,6 +161,7 @@ GameTag = _enum('GameTag', [
     ('SHOULDEXITCOMBAT',                   312),
     ('CREATOR',                            313),
     ('CANT_BE_DISPELLED',                  314),
+    ('DIVINE_SHIELD_READY',                314),  #TODO: strange here
     ('PARENT_CARD',                        316),
     ('NUM_MINIONS_PLAYED_THIS_TURN',       317),
     ('PREDAMAGE',                          318),
@@ -173,6 +174,7 @@ GameTag = _enum('GameTag', [
     ('COUNTER',                            340),
     ('ARTISTNAME',                         342),
     ('HAND_REVEALED',                      348),
+    ('ADJACENT_BUFF',                      350),
     ('FLAVORTEXT',                         351),
     ('FORCED_PLAY',                        352),
     ('LOW_HEALTH_THRESHOLD',               353),
@@ -186,7 +188,8 @@ GameTag = _enum('GameTag', [
     ('POISONOUS',                          363),
     ('HOW_TO_EARN',                        364),
     ('HOW_TO_EARN_GOLDEN',                 365),
-    ('AFFECTED_BY_SPELL_POWER',            370)
+    ('AFFECTED_BY_SPELL_POWER',            370),
+    ('IMMUNE_WHILE_ATTACKING',             373)
 ])
 
 MetaType = _enum('MetaType', [
