@@ -22,7 +22,7 @@ class EntityBase:
         return tag in self._tags
 
     def __str__(self):
-        # TODO: find a nice represenation
+        # TODO: find a nice representation
         custom = self[TAG_CUSTOM_NAME]
         if custom:
             return '[{0!r}]'.format(custom)
