@@ -1,5 +1,6 @@
 from hearthy.protocol import enums
 from hearthy.protocol.enums import GameTag
+from hearthy.protocol.utils import format_tag_value
 from hearthy.db import cards
 
 # custom tags that aren't in defined in GameTag
@@ -77,3 +78,15 @@ class MutableView(EntityBase):
 
     def __contains__(self, tag):
         return tag in self._tags or tag in self._e
+
+    def __str__(self):
+        ret = super().__str__()
+        for key, val in self._tags.items():
+            oldval = self._e[key]
+            ret += ('\n\ttag {1}:{2} {3} -> {4}'.format(
+                            self,
+                            key,
+                            GameTag.reverse.get(key, '?'),
+                            format_tag_value(key, oldval) if oldval else '(unset)',
+                            format_tag_value(key, val)))
+        return ret
