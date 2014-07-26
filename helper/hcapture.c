@@ -13,6 +13,52 @@
 
 #define int_ntoa(x)	inet_ntoa(*((struct in_addr *)&x))
 
+/* Start Platform Specific Functions */
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+typedef clock_serv_t time_context_t;
+
+static
+int monotonic_init(time_context_t* ctx) {
+    return host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, ctx);
+}
+
+static
+void monotonic_destroy(time_context_t* ctx) {
+    mach_port_deallocate(mach_task_self(), *ctx);
+}
+
+static
+int64_t monotonic_get(time_context_t* ctx) {
+    mach_timespec_t mts;
+    clock_get_time(*ctx, &mts);
+    return ((int64_t)mts.tv_sec) * 1000 + (mts.tv_nsec / 1000000);
+}
+#elif __GNUC__
+typedef int time_context_t;
+
+static
+int monotonic_init(time_context_t* ctx) { return 0; }
+
+static
+void monotonic_destroy(time_context_t* ctx) {}
+
+static
+int64_t monotonic_get(time_context_t* ctx) {
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC_RAW, &ts) != 0) {
+        return INT64_MIN;
+    }
+    return ((int64_t)ts.tv_sec) * 1000 + (ts.tv_nsec / 1000000);
+}
+#else
+
+#error "Unsupported platform"
+
+#endif
+/* End Platform Speific Functions */
+
 #define EV_NEW_CONNECTION 0
 #define EV_CLOSE 1
 #define EV_DATA 2
@@ -34,6 +80,7 @@ FILE* outfile = NULL;
 int stream_count = 0;
 uint8_t header_buf[MAX_BUF];
 int64_t reference_ts;
+time_context_t monotonic_time;
 
 unsigned int
 write_uint64(uint8_t *buf, unsigned int offset, uint64_t arg) {
@@ -70,21 +117,9 @@ write_uint8(uint8_t *buf, unsigned int offset, unsigned int arg) {
     return offset;
 }
 
-// Returns a timestamp in milliseconds, should only be used
-// for relative calculations (i.e. durations).
-// This timestamp *should* be monotonic.
-int64_t
-get_relative_timestamp(void) {
-    struct timespec ts;
-    if (clock_gettime(CLOCK_MONOTONIC_RAW, &ts) != 0) {
-        return INT64_MIN;
-    }
-    return ((int64_t)ts.tv_sec) * 1000 + (ts.tv_nsec / 1000000);
-}
-
 unsigned int
 write_relative_timestamp(uint8_t *buf, unsigned int offset) {
-    int64_t diff = get_relative_timestamp() - reference_ts;
+    int64_t diff = monotonic_get(&monotonic_time) - reference_ts;
     return write_uint64(buf, offset, (uint64_t)diff);
 }
 
@@ -269,7 +304,12 @@ main(int argc, char *argv[]) {
     // Get unix timestamp and monotonic timestamp
     int64_t timestamp = (int64_t)time(NULL);
 
-    reference_ts = get_relative_timestamp();
+    if (monotonic_init(&monotonic_time) != 0) {
+        fprintf(stderr, "Failed to initialize monotonic time\n");
+        return 1;
+    }
+
+    reference_ts = monotonic_get(&monotonic_time);
     
     if (reference_ts == INT64_MIN) {
         perror("clock_gettime");
@@ -283,6 +323,7 @@ main(int argc, char *argv[]) {
     nids_register_tcp(tcp_callback);
     nids_run();
 
+    monotonic_destroy(&monotonic_time);
     fclose(outfile);
     return 0;
 }
