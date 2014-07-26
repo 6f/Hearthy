@@ -249,16 +249,10 @@ _deftype('GameCancelled', [
     (1, 'Reason', 'int') # OPPONENT_TIMEOUT = 1
 ])
 
-_deftype('ClientInfo', [
-    (1, 'Pieces',   'int32[]'),
-    (2, 'CardBack', 'int32')
-])
-
 _deftype('GameSetup', [
-    (1, 'Board',                      'string'),
-    (2, 'Clients',                    'ClientInfo[]'), # Removed since patch 4944?
-    (3, 'MaxSecretsPerPlayer',        'int'),
-    (4, 'MaxFriendlyMinionPerPlayer', 'int')
+    (1, 'Board',                      'int32'),
+    (2, 'MaxSecretsPerPlayer',        'int32'),
+    (3, 'MaxFriendlyMinionPerPlayer', 'int32')
 ])
 
 _deftype('GetGameState', [])
