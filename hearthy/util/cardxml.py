@@ -61,11 +61,15 @@ def parse_cardxml_dir(dirname):
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) < 2:
-        print('Usage: {0} <dir | file>'.format(sys.argv[0]))
+    if len(sys.argv) < 3:
+        print('Usage: {0} <dir | file> outfile'.format(sys.argv[0]))
         sys.exit(1)
 
+    cards = []
     if os.path.isdir(sys.argv[1]):
-        parse_cardxml_dir(sys.argv[1])
+        cards = parse_cardxml_dir(sys.argv[1])
     else:
-        parse_cardxml(sys.argv[1])
+        card = parse_cardxml(sys.argv[1])
+        cards.append(card)
+
+    write_db(cards, open(sys.argv[2], 'w'))	
