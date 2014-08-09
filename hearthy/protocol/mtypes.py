@@ -33,11 +33,17 @@ _types_to_build = []
 def _deftype(name, fields):
     _types_to_build.append((name, fields))
 
+def _build_docstring(name, fields):
+    header = 'Automatically generated class "{0}"\n\nField Definitions:'.format(name)
+    fields = '\n'.join('[{0:2}] {2:10} {1}'.format(*x) for x in fields)
+    return header + '\n' + fields
+
 def _build_types():
     update = {}
     for name, fields in _types_to_build:
         newtype = type(name, (mstruct.MStruct,),
                        {'__slots__':[x[1] for x in fields],
+                        '__doc__': _build_docstring(name, fields),
                         '_mfields_':{}})
 
         assert name not in update, 'No duplicated definitions'
