@@ -67,31 +67,16 @@ class World:
         return WorldTransaction(self)
 
     def _apply(self, transaction):
-        # XXX: Remove all debug code
-        print('== Transaction Start ==')
-        
         self.cb(self, 'pre_apply', transaction)
         
         for entity in transaction._e.values():
+            if GameTag.TURN in entity._tags:
+                print("== Turn {0} ==".format(entity._tags[GameTag.TURN]))
+
             if isinstance(entity, MutableView):
-                for key, val in entity._tags.items():
-                    oldval = entity._e[key]
-                    if oldval:
-                        print('{0} tag {1}:{2} {3} -> {4}'.format(
-                            entity,
-                            key,
-                            GameTag.reverse.get(key, '?'),
-                            format_tag_value(key, oldval),
-                            format_tag_value(key, val)))
-                    else:
-                        print('{0} tag {1}:{2} (unset) -> {3}'.format(
-                            entity,
-                            key,
-                            GameTag.reverse.get(key, '?'),
-                            format_tag_value(key, val)))
+                print('{0}'.format(entity))
                 entity._e._tags.update(entity._tags)
             else:
                 assert entity.id not in self
                 print('Added new entity {0}'.format(entity))
                 self._e[entity.id] = entity.freeze()
-        print('== Transaction End ==')

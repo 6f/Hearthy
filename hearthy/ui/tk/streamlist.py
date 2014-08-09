@@ -137,7 +137,9 @@ class StreamList:
 
     def on_create(self, stream_id, source, dest, ts):
         assert stream_id not in self._streams
-        self._streams[stream_id] = Stream(stream_id, self._basets, ts, source, dest)
+        stream = Stream(stream_id, self._basets, ts, source, dest)
+        self._streams[stream_id] = stream
+        self._update_view(stream)
 
     def on_basets(self, ts):
         self._basets = ts
@@ -147,25 +149,19 @@ class StreamList:
         assert stream is not None
         stream.packet_count += 1
         stream.packets.append((packet, who, ts))
-
-        if stream.node is None:
-            stream.node = self._view.insert('', 'end',
-                                            text='Stream {0}'.format(stream.id),
-                                            values=stream.get_values())
-        else:
-            self._view.item(stream.node, values=stream.get_values())
-
-        for sv in self._stream_views.get(stream_id, []):
-            sv.process_packet(packet, who, ts)
-
-        tracker = self._trackers.get(stream_id, None)
-        if tracker is not None:
-            tracker.process(who, packet)
+        self._update_view(stream)
 
     def on_close(self, stream_id, ts):
         stream = self._streams.get(stream_id, None)
         assert stream is not None
         stream.status = 'closed'
         stream.end = ts
-        if stream.node is not None:
+        self._update_view(stream)
+
+    def _update_view(self, stream):
+        if stream.node is None:
+            stream.node = self._view.insert('', 'end',
+                                            text='Stream {0}'.format(stream.id),
+                                            values=stream.get_values())
+        else:
             self._view.item(stream.node, values=stream.get_values())
