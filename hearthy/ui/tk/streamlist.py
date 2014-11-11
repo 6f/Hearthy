@@ -151,6 +151,13 @@ class StreamList:
         stream.packets.append((packet, who, ts))
         self._update_view(stream)
 
+        for sv in self._stream_views.get(stream_id, []):
+            sv.process_packet(packet, who, ts)
+
+        tracker = self._trackers.get(stream_id, None)
+        if tracker is not None:
+            tracker.process(who, packet)
+
     def on_close(self, stream_id, ts):
         stream = self._streams.get(stream_id, None)
         assert stream is not None
