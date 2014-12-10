@@ -33,7 +33,12 @@ _packet_type_map = [
     (PacketType.DEBUG_CONSOLE_COMMAND, mtypes.DebugConsoleCommand),
     (PacketType.DEBUG_CONSOLE_RESPONSE, mtypes.DebugConsoleResponse),
     (PacketType.PING, mtypes.Ping),
-    (PacketType.PONG, mtypes.Pong)
+    (PacketType.PONG, mtypes.Pong),
+    (PacketType.FORCED_ENTITY_CHOICE, mtypes.ForcedEntityChoice),
+    (PacketType.SERVER_RESULT, mtypes.ServerResult),
+    (PacketType.SPECTATOR_NOTIFY, mtypes.SpectatorNotify),
+    (PacketType.SPECTATOR_HANDSHAKE, mtypes.SpectatorHandshake),
+    (PacketType.INVITE_TO_SPECTATE, mtypes.InviteToSpectate)
 ]
 
 _packet_type_handlers = dict(_packet_type_map)
@@ -52,6 +57,7 @@ def encode_packet(packet, buf, offset=0):
 def decode_packet(packet_type, buf):
     handler = _packet_type_handlers.get(packet_type, None)
     if handler is None:
+        import pdb; pdb.set_trace()
         raise DecodeError('No handler for packet type {0}'.format(packet_type))
 
     return handler.decode_buf(buf)

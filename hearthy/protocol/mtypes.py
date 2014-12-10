@@ -14,7 +14,8 @@ _uint32 = mstruct.MInteger(32, False)
 _int64 = mstruct.MInteger(64, True)
 _uint64 = mstruct.MInteger(64, False)
 
-_fixed32 = mstruct.MFixedInteger(32, False)
+_fixed32 = mstruct.MBasicFixed(False, 32, False)
+_float = mstruct.MBasicFixed(True, 32)
 
 _basic_typehandler = {
     'enum': _enum,
@@ -25,6 +26,7 @@ _basic_typehandler = {
     'int64': _int64,
     'uint64': _uint64,
     'fixed32': _fixed32,
+    'float': _float,
     'bytes': mstruct.MBytes,
     'string': mstruct.MString
 }
@@ -217,6 +219,42 @@ _deftype('Option', [
     (3, 'SubOptions', 'SubOption[]')
 ])
 
+_deftype('SpectatorHandshake', [
+    (1, 'GameHandle', 'uint32'),
+    (2, 'Password', 'string'),
+    (3, 'Version', 'string'),
+    (4, 'Platform', 'Platform'),
+    (5, 'GameAccountId', 'BnetId')
+])
+
+_deftype('SpectatorChange', [
+    (1, 'GameAccountId', 'BnetId'),
+    (2, 'IsRemoved', 'bool')
+])
+
+_deftype('SpectatorRemoved', [
+    (1, 'ReasonCode', 'int32')
+])
+
+_deftype('SpectatorNotify', [
+    (1, 'PlayerId', 'int32'),
+    (2, 'ChooseOption', 'ChooseOption'),
+    (3, 'ChooseEntities', 'ChooseEntities'),
+    (4, 'SpectatorChange', 'SpectatorChange[]'),
+    (5, 'SpectatorPasswordUpdate', 'string'),
+    (6, 'SpectatorRemoved', 'SpectatorRemoved')
+])
+
+_deftype('InviteToSpectate', [
+    (1, 'BnetAccountId', 'BnetId'),
+    (2, 'GameAccountId', 'BnetId')
+])
+
+_deftype('ForcedEntityChoice', [
+    (1, 'Id', 'int32'),
+    (2, 'Entities', 'int32')
+])
+
 _deftype('AllOptions', [
     (1, 'Id',      'int32'),
     (2, 'Options', 'Option[]')
@@ -235,6 +273,11 @@ _deftype('ChooseOption', [
     (5, 'Position',   'int32'),
     (6, 'OldPlatform','int32'),
     (7, 'Platform',   'Platform')
+])
+
+_deftype('ServerResult', [
+    (1, 'ResultCode', 'int32'),
+    (2, 'RetryDelaySeconds', 'float')
 ])
 
 _deftype('Ping', [])
@@ -261,7 +304,8 @@ _deftype('GameCancelled', [
 _deftype('GameSetup', [
     (1, 'Board',                      'int32'),
     (2, 'MaxSecretsPerPlayer',        'int32'),
-    (3, 'MaxFriendlyMinionPerPlayer', 'int32')
+    (3, 'MaxFriendlyMinionPerPlayer', 'int32'),
+    (4, 'KeepAliveFrequency',         'int32')
 ])
 
 _deftype('GetGameState', [])

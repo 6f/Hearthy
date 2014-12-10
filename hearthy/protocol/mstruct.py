@@ -17,16 +17,26 @@ class MInteger:
         else:
             return serialize.read_packed_varint(buf, offset, end, self._signed)
 
-class MFixedInteger:
-    def __init__(self, nbits, signed):
-        if nbits == 32:
-            self._n_bytes = 4
-            self._s = 'i' if signed else 'I'
-        elif nbits == 64:
-            self._n_bytes = 8
-            self._s = 'q' if signed else 'Q'
+class MBasicFixed:
+    def __init__(self, is_float, nbits, signed=True):
+        if is_float:
+            if nbits == 32:
+                self._n_bytes = 4
+                self._s = 'f'
+            elif nbits == 64:
+                self._n_bytes = 8
+                self._s = 'd'
+            else:
+                assert False, 'Unsupported size'
         else:
-            assert False, 'Unsupported fixed size!'
+            if nbits == 32:
+                self._n_bytes = 4
+                self._s = 'i' if signed else 'I'
+            elif nbits == 64:
+                self._n_bytes = 8
+                self._s = 'q' if signed else 'Q'
+            else:
+                assert False, 'Unsupported size'
 
     def decode_buf(self, buf, offset=0, end=None):
         if end is None:
@@ -59,7 +69,9 @@ class MString:
         return end
 
     @classmethod
-    def decode_buf(cls, buf, offset, end):
+    def decode_buf(cls, buf, offset, end=None):
+        if end is None:
+            raise DecodeError('Strings need to be length delimited!')
         try:
             return buf[offset:end].decode('UTF-8')
         except UnicodeDecodeError as e:
@@ -89,7 +101,7 @@ class MStruct:
                     # use packed encoding
                     buf[offset] = serialize.WTYPE_LEN_DELIM | k << 3
                     offset = self._encode_buf_val_len_delim(val, serialize.write_packed_varint, buf, offset+1)
-                elif isinstance(typehandler, MFixed):
+                elif isinstance(typehandler, MBasicFixed):
                     raise NotImplementedError
                 else:
                     for item in val:
@@ -99,6 +111,8 @@ class MStruct:
                 if isinstance(typehandler, MInteger):
                     buf[offset] = serialize.WTYPE_VARINT | k << 3
                     offset = serialize.write_varint(val, buf, offset+1)
+                elif isinstance(typehandler, MBasicFixed):
+                    raise NotImplementedError
                 else:
                     buf[offset] = serialize.WTYPE_LEN_DELIM | k << 3
                     offset = self._encode_buf_val_len_delim(val, typehandler.encode_buf, buf, offset+1)
