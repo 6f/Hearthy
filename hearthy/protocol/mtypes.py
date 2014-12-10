@@ -237,6 +237,9 @@ _deftype('ChooseOption', [
     (7, 'Platform',   'Platform')
 ])
 
+_deftype('Ping', [])
+_deftype('Pong', [])
+
 _deftype('Notification', [
     (1, 'Type', 'int'), #  IN_HAND_CARD_CAP = 1, MANA_CAP
 ])

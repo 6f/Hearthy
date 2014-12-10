@@ -31,7 +31,9 @@ _packet_type_map = [
     (PacketType.AURORA_HANDSHAKE, mtypes.AuroraHandshake),
     (PacketType.GAME_STARTING, mtypes.GameStarting),
     (PacketType.DEBUG_CONSOLE_COMMAND, mtypes.DebugConsoleCommand),
-    (PacketType.DEBUG_CONSOLE_RESPONSE, mtypes.DebugConsoleResponse)
+    (PacketType.DEBUG_CONSOLE_RESPONSE, mtypes.DebugConsoleResponse),
+    (PacketType.PING, mtypes.Ping),
+    (PacketType.PONG, mtypes.Pong)
 ]
 
 _packet_type_handlers = dict(_packet_type_map)
