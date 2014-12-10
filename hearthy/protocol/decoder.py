@@ -62,7 +62,7 @@ if __name__ == '__main__':
         print('Usage: {0} <raw dump file>'.format(sys.argv[0]), file=sys.stderr)
         sys.exit(1)
 
-    with open(sys.argv[1], 'rb'):
+    with open(sys.argv[1], 'rb') as f:
         s = Splitter()
         while True:
             buf = f.read(8*1024)
