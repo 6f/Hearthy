@@ -1,5 +1,7 @@
 from hearthy.protocol import mtypes
+from hearthy.protocol.enums import GameTag
 from hearthy.tracker.world import World
+from hearthy.protocol.utils import format_tag_value
 from hearthy.tracker.entity import Entity, TAG_CUSTOM_NAME, TAG_POWER_NAME
 
 class Processor:
@@ -12,20 +14,30 @@ class Processor:
 
     def _process(self, who, what, t):
         if isinstance(what, mtypes.StartGameState):
-            eid, taglist = (what.GameEntity.Id,
-                            [(t.Name, t.Value) for t in what.GameEntity.Tags])
-            taglist.append((TAG_CUSTOM_NAME, 'TheGame'))
-            t.add(Entity(eid, taglist))
-
-            for player in what.Players:
-                eid, taglist = (player.Entity.Id,
-                                [(t.Name, t.Value) for t in player.Entity.Tags])
-                # TODO: are we interested in the battlenet id?
-                taglist.append((TAG_CUSTOM_NAME, 'Player{0}'.format(player.Id)))
-                t.add(Entity(eid, taglist))
+            self._process_create_game(what, t)
         elif isinstance(what, mtypes.PowerHistory):
             for power in what.List:
                 self._process_power(power, t)
+
+    def _process_create_game(self, what, t):
+        eid, taglist = (what.GameEntity.Id,
+                        [(t.Name, t.Value) for t in what.GameEntity.Tags])
+        if eid in t:
+            print('INFO: Game Entity already exists, ignoring "create game" event')
+            return
+
+        print(what.GameEntity)
+        taglist.append((TAG_CUSTOM_NAME, 'TheGame'))
+        t.add(Entity(eid, taglist))
+
+        for player in what.Players:
+            eid, taglist = (player.Entity.Id,
+                            [(t.Name, t.Value) for t in player.Entity.Tags])
+
+            # TODO: are we interested in the battlenet id?
+            print(player)
+            taglist.append((TAG_CUSTOM_NAME, 'Player{0}'.format(player.Id)))
+            t.add(Entity(eid, taglist))
 
     def _process_power(self, power, t):
         if hasattr(power, 'FullEntity'):
@@ -45,3 +57,6 @@ class Processor:
             change = power.TagChange
             e = t.get_mutable(change.Entity)
             e[change.Tag] = change.Value
+        if hasattr(power, 'CreateGame'):
+            self._process_create_game(power.CreateGame, t)
+            

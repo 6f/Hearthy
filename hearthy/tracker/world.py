@@ -74,9 +74,7 @@ class World:
                 print("== Turn {0} ==".format(entity._tags[GameTag.TURN]))
 
             if isinstance(entity, MutableView):
-                print('{0}'.format(entity))
                 entity._e._tags.update(entity._tags)
             else:
                 assert entity.id not in self
-                print('Added new entity {0}'.format(entity))
                 self._e[entity.id] = entity.freeze()
