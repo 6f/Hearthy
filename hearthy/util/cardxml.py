@@ -4,12 +4,40 @@ import xml.etree.ElementTree as ET
 class CardxmlException(Exception):
     pass
 
+class TagMismatch(CardxmlException):
+    def __init__(self, expected, found):
+        CardxmlException.__init__(self, 'Expected tag {0} but found tag {1}'.format(expected, found))
 
 class Card:
     __slots__ = ['id', 'name']
     def __init__(self, id, name):
         self.id = id
         self.name = name
+
+def assert_tag(el, tag_name):
+    if el.tag != tag_name:
+        raise TagMismatch(tag_name, el.tag)
+
+def parse_carddefs(name):
+    tree = ET.parse(name)
+    root = tree.getroot()
+
+    assert_tag(root, 'CardDefs')
+    cards = []
+
+    for el_entity in root:
+        assert_tag(el_entity, 'Entity')
+        card_id = el_entity.get('CardID')
+
+        if card_id is None:
+            raise CardxmlExcpetion('Got entity without CardID attribute')
+
+        for el_tag in el_entity:
+            if el_tag.tag == 'Tag' and el_tag.get('enumID') == '185':
+                cards.append(Card(card_id, el_tag.text))
+                break
+
+    return cards
 
 def parse_cardxml(name):
     tree = ET.parse(name)
@@ -69,7 +97,6 @@ if __name__ == '__main__':
     if os.path.isdir(sys.argv[1]):
         cards = parse_cardxml_dir(sys.argv[1])
     else:
-        card = parse_cardxml(sys.argv[1])
-        cards.append(card)
+        cards = parse_carddefs(sys.argv[1])
 
-    write_db(cards, open(sys.argv[2], 'w'))	
+    write_db(cards, open(sys.argv[2], 'w'))
