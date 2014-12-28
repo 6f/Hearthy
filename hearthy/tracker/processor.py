@@ -74,8 +74,13 @@ class Processor:
         if hasattr(power, 'TagChange'):
             change = power.TagChange
             e = t.get_mutable(change.Entity)
+
+            logger.info('Tag change for {0}: {1} from {2} to {3}'.format(
+                Entity.__str__(e),
+                GameTag.reverse.get(change.Tag, change.Tag),
+                format_tag_value(change.Tag, e[change.Tag]) if e[change.Tag] is not None else '(unset)',
+                format_tag_value(change.Tag, change.Value)))
+
             e[change.Tag] = change.Value
-            
-            logger.info('Tag changes: {0}'.format(e))
         if hasattr(power, 'CreateGame'):
             self._process_create_game(power.CreateGame, t)
