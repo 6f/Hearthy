@@ -1,7 +1,10 @@
+import logging
 from hearthy import exceptions
 from hearthy.protocol.enums import GameTag
 from hearthy.protocol.utils import format_tag_value
 from hearthy.tracker.entity import Entity, MutableEntity, MutableView
+
+logger = logging.getLogger(__name__)
 
 class WorldTransaction:
     def __init__(self, world):
@@ -71,7 +74,7 @@ class World:
         
         for entity in transaction._e.values():
             if GameTag.TURN in entity._tags:
-                print("== Turn {0} ==".format(entity._tags[GameTag.TURN]))
+                logger.info('== Turn {0} =='.format(entity._tags[GameTag.TURN]))
 
             if isinstance(entity, MutableView):
                 entity._e._tags.update(entity._tags)
