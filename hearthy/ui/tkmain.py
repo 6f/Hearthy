@@ -44,6 +44,9 @@ class Application(ttk.Frame):
 if __name__ == '__main__':
     import sys
     import os
+    import logging
+
+    logging.basicConfig(level=logging.DEBUG)
 
     if len(sys.argv) < 2:
         print('Usage: {0} <hcap file>'.format(sys.argv[0]))
