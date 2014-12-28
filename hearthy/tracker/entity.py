@@ -1,6 +1,7 @@
 from hearthy.protocol import enums
 from hearthy.protocol.enums import GameTag
 from hearthy.protocol.utils import format_tag_value
+from hearthy.exceptions import CardNotFound
 from hearthy.db import cards
 
 # custom tags that aren't in defined in GameTag
@@ -30,7 +31,10 @@ class EntityBase:
 
         power = self[TAG_POWER_NAME]
         if power:
-            cardname = cards.get_by_id(power)
+            try:
+                cardname = cards.get_by_id(power)
+            except CardNotFound:
+                cardname = power
         else:
             cardname = '?'
 
@@ -90,3 +94,4 @@ class MutableView(EntityBase):
                             format_tag_value(key, oldval) if oldval else '(unset)',
                             format_tag_value(key, val)))
         return ret
+
