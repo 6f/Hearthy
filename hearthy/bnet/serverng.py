@@ -100,24 +100,24 @@ class AuthenticationServer(rpcdef.AuthenticationServer.Server):
     def Logon(self, req):
         yield mtypes.BnetNoData()
         
-        # self._auth_client.LogonQueueUpdate(
-        #      Position=1,
-        #      EstimatedTime=int(time.time())+100000,
-        #      EtaDeviationInSec=0)
-        # self._auth_client.LogonQueueEnd()
+        self._auth_client.LogonQueueUpdate(
+              Position=1,
+              EstimatedTime=9223372036854775807,
+              EtaDeviationInSec=0)
+        #self._auth_client.LogonQueueEnd()
 
-        # #self.add_module(auth.ThumbprintModule())
-        # #self.add_module(auth.PasswordAuthenticator('waifu@blizzard.com', 'pass'))
-        # self._auth_client.LogonUpdate(error_code=0)
-        self._auth_client.LogonComplete(
-            error_code=0,
-            account=mtypes.EntityId(high=0xdead, low=0xbeef),
-            game_account=[mtypes.EntityId(high=0x1CEB00DA, low=0xBAADF00D)],
-            email='email',
-            available_region=[0],
-            connected_region=0,
-            battle_tag='bt',
-            geoip_country='country')
+        #self.add_module(auth.ThumbprintModule())
+        #self.add_module(auth.PasswordAuthenticator('waifu@blizzard.com', 'pass'))
+        #self._auth_client.LogonUpdate(error_code=0)
+        #self._auth_client.LogonComplete(
+        #    error_code=0,
+        #    account=mtypes.EntityId(high=0xdead, low=0xbeef),
+        #    game_account=[mtypes.EntityId(high=0x1CEB00DA, low=0xBAADF00D)],
+        #    email='email',
+        #    available_region=[0],
+        #    connected_region=0,
+        #    battle_tag='bt',
+        #    geoip_country='country')
 
 class PresenceServiceServer(rpcdef.PresenceService.Server):
     pass
