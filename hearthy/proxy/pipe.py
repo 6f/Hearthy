@@ -1,6 +1,9 @@
 import asyncore
 import socket
 import struct
+import logging
+
+logger = logging.getLogger(__name__)
 
 LISTEN_BACKLOG = 10
 SO_ORIGINAL_DST = 80
@@ -157,20 +160,22 @@ class TcpEndpointProvider(asyncore.dispatcher):
         self.set_reuse_addr()
         self.bind(listen)
         self.listen(LISTEN_BACKLOG)
-        print('Started, listening on {0}:{1}'.format(*listen))
+
+        self.logger = logger
+        self.logger.info('Started, listening on %s:%s', listen[0], listen[1])
 
         self.cb = None
 
     def handle_accepted(self, sock, addr):
-        print('Received connection from {0!r}'.format(addr))
+        self.logger.info('Accepeted connection from %r', addr)
         buf = sock.getsockopt(socket.SOL_IP, SO_ORIGINAL_DST, 16)
         port, packed_ip = struct.unpack("!2xH4s8x", buf)
         ip = socket.inet_ntoa(packed_ip)
-        print('Original Destination: {0}:{1}'.format(ip, port))
+        self.logger.info('Original Destination: %s:%s', ip, port)
 
         if self.cb is None:
-            print('No callback set - closing socket')
-            sock.close('no handler')
+            self.logger.warning('No callback set - closing socket')
+            sock.close()
         else:
             conn = TcpEndpoint.from_socket(sock)
             self.cb(self, 'accepted', ((ip, port), conn))
