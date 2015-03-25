@@ -168,10 +168,14 @@ class TcpEndpointProvider(asyncore.dispatcher):
 
     def handle_accepted(self, sock, addr):
         self.logger.info('Accepeted connection from %r', addr)
-        buf = sock.getsockopt(socket.SOL_IP, SO_ORIGINAL_DST, 16)
-        port, packed_ip = struct.unpack("!2xH4s8x", buf)
-        ip = socket.inet_ntoa(packed_ip)
-        self.logger.info('Original Destination: %s:%s', ip, port)
+        try:
+            buf = sock.getsockopt(socket.SOL_IP, SO_ORIGINAL_DST, 16)
+            port, packed_ip = struct.unpack("!2xH4s8x", buf)
+            ip = socket.inet_ntoa(packed_ip)
+            self.logger.info('Original Destination: %s:%s', ip, port)
+        except OSError:
+            ip = 'not available'
+            self.logger.info('Unable to find original destination')
 
         if self.cb is None:
             self.logger.warning('No callback set - closing socket')
