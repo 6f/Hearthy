@@ -7,6 +7,7 @@ READ_BUFSIZE = 16 * 1024
 
 def tokenizer(f):
     leftover = ''
+    in_comment = False
     while True:
         buf = f.read(READ_BUFSIZE)
         if not buf:
@@ -14,7 +15,13 @@ def tokenizer(f):
 
         fields = re.split('[\n\r, ]', leftover + buf)
         for field in filter(None, fields[:-1]):
-            yield field
+            if field == '/*':
+                in_comment = True
+            elif field == '*/':
+                in_comment = False
+            else:
+                if not in_comment:
+                    yield field
         leftover = fields[-1]
 
     if leftover:
