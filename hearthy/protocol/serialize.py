@@ -1,4 +1,6 @@
 """
+Useful routines to deal with google protobuf encoding.
+
 Reference:
 https://developers.google.com/protocol-buffers/docs/encoding
 """
@@ -6,7 +8,9 @@ https://developers.google.com/protocol-buffers/docs/encoding
 from hearthy.exceptions import DecodeError
 
 WTYPE_VARINT = 0     # int32, int64, uint32, uint64, sint32, sint64, bool, enum
+WTYPE_FIXED64 = 1    # fixed64, sfixed64, double
 WTYPE_LEN_DELIM = 2  # string, bytes, embedded messages, packed repeated fields
+# type id 3 and 4 are deprecated and not listed here
 WTYPE_FIXED32 = 5    # fixed32, sfixed32, float
 
 _MASK = (1 << 64) - 1
