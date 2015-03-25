@@ -175,6 +175,7 @@ class TcpEndpointProvider(asyncore.dispatcher):
             self.logger.info('Original Destination: %s:%s', ip, port)
         except OSError:
             ip = 'not available'
+            port = 999
             self.logger.info('Unable to find original destination')
 
         if self.cb is None:
