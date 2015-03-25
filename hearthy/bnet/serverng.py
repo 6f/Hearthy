@@ -1,7 +1,7 @@
 import logging
 import time
 from hearthy.protocol import mtypes
-from hearthy.bnet import rpcdef, rpc, auth, utils
+from hearthy.bnet import rpcdef, rpc, utils
 from hearthy.proxy import pipe
 from hearthy.bnet.decode import SplitterBuf
 from hearthy.protocol.utils import hexdump
