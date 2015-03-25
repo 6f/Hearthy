@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Hearhstone Message Types
+Hearthstone Message Types
 """
 
 from hearthy.protocol import mstruct
@@ -15,6 +15,7 @@ _int64 = mstruct.MInteger(64, True)
 _uint64 = mstruct.MInteger(64, False)
 
 _fixed32 = mstruct.MBasicFixed(False, 32, False)
+_fixed64 = mstruct.MBasicFixed(False, 64, False)
 _float = mstruct.MBasicFixed(True, 32)
 
 _basic_typehandler = {
@@ -26,6 +27,7 @@ _basic_typehandler = {
     'int64': _int64,
     'uint64': _uint64,
     'fixed32': _fixed32,
+    'fixed64': _fixed64,
     'float': _float,
     'bytes': mstruct.MBytes,
     'string': mstruct.MString
@@ -358,10 +360,10 @@ _deftype('BnetConnectRequest', [
 ])
 
 _deftype('BnetContentHandle', [
-    (1, 'Region', 'fixed32'),
-    (2, 'Usage', 'fixed32'),
-    (3, 'Hash', 'bytes'),
-    (4, 'ProtoUrl', 'string')
+    (1, 'region', 'fixed32'),
+    (2, 'usage', 'fixed32'),
+    (3, 'hash', 'bytes'),
+    (4, 'proto_url', 'string')
 ])
 
 _deftype('BnetContentMeteringContentHandles', [
@@ -385,18 +387,161 @@ _deftype('BnetNoData', [
 ])
 
 _deftype('BnetLogonRequest', [
-    (1, 'Program', 'string'),
-    (2, 'Platform', 'string'),
-    (3, 'Locale', 'string'),
-    (4, 'EMail', 'string'),
-    (5, 'Version', 'string'),
-    (6, 'ApplicationVersion', 'int32'),
-    (7, 'PublicComputer', 'bool'),
-    (8, 'SsoId', 'bytes'),
-    (9, 'DisconnectOnCookieFail', 'bool'),
-    (10, 'AllowLogonQueueNotifications', 'bool'),
-    (11, 'WebClientVerification', 'bool'),
-    (12, 'CachedWebCredentials', 'bytes')
+    (1, 'program', 'string'),
+    (2, 'platform', 'string'),
+    (3, 'locale', 'string'),
+    (4, 'email', 'string'),
+    (5, 'version', 'string'),
+    (6, 'application_version', 'int32'),
+    (7, 'public_computer', 'bool'),
+    (8, 'sso_id', 'bytes'),
+    (9, 'disconnect_on_cookie_fail', 'bool'),
+    (10, 'allow_logon_queue_notifications', 'bool'),
+    (11, 'web_client_verification', 'bool'),
+    (12, 'cached_web_credentials', 'bytes')
+])
+
+_deftype('EntityId', [
+    (1, 'high', 'fixed64'),
+    (2, 'low', 'fixed64')
+])
+
+_deftype('Attribute', [
+    (1, 'name', 'string'),
+    (2, 'value', 'BnetVariant')
+])
+
+_deftype('Friend', [
+    (1, 'id', 'EntityId'),
+    (2, 'atttribute', 'Attribute[]'),
+    (3, 'role', 'uint32[]'),
+    (4, 'privileges', 'uint64'),
+    (5, 'attributes_epoch', 'uint64'),
+    (6, 'full_name', 'string'),
+    (7, 'battle_tag', 'string')
+])
+
+_deftype('Identity', [
+    (1, 'account_id', 'EntityId'),
+    (2, 'game_account_id', 'EntityId')
+])
+
+_deftype('Role', [
+    (1, 'id', 'uint32'),
+    (2, 'name', 'string'),
+    (3, 'priviledge', 'string[]'),
+    (4, 'assignable_role', 'uint32[]'),
+    (5, 'required', 'bool'),
+    (6, 'unique', 'bool'),
+    (7, 'relegation_role', 'uint32'),
+    (8, 'attribute', 'Attribute[]')
+])
+
+_deftype('Invitation', [
+    (1, 'id', 'fixed64'),
+    (2, 'inviter_identity', 'Identity'),
+    (3, 'invitee_identity', 'Identity'),
+    (4, 'inviter_name', 'string'),
+    (5, 'invitee_name', 'string'),
+    (6, 'invitation_message', 'string'),
+    (7, 'creation_time', 'uint64'),
+    (8, 'expiration_time', 'uint64')
+])
+
+_deftype('SubscribeToFriendsRequest', [
+    (1, 'agent_id', 'EntityId'),
+    (2, 'object_id', 'uint64')
+])
+
+_deftype('SubscribeToFriendsResponse', [
+    (1, 'max_friends', 'uint32'),
+    (2, 'max_received_invitations', 'uint32'),
+    (3, 'max_sent_invitations', 'uint32'),
+    (4, 'role', 'Role[]'),
+    (5, 'friends', 'Friend[]'),
+    (6, 'sent_invitations', 'Invitation[]'),
+    (7, 'received_invitations', 'Invitation[]')
+])
+
+_deftype('BnetPresenceSubscribeRequest', [
+    (1, 'agent_id', 'EntityId'),
+    (2, 'entity_id', 'EntityId'),
+    (3, 'object_id', 'uint64'),
+    (4, 'program_id', 'fixed32[]')
+])
+
+_deftype('BnetPresenceUnsubscribeRequest', [
+    (1, 'agent_id', 'EntityId'),
+    (2, 'entity_id', 'EntityId')
+])
+
+_deftype('PresenceFieldKey', [
+    (1, 'program', 'uint32'),
+    (2, 'group', 'uint32'),
+    (3, 'field', 'uint32'),
+    (4, 'index', 'uint64')
+])
+
+_deftype('PresenceField', [
+    (1, 'key', 'PresenceFieldKey'),
+    (2, 'value', 'BnetVariant')
+])
+
+_deftype('PresenceFieldOperation', [
+    (1, 'field', 'PresenceField'),
+    (2, 'operation', 'enum')
+])
+
+_deftype('BnetPresenceUpdateRequest', [
+    (1, 'entity_id', 'EntityId'),
+    (2, 'field_operation', 'PresenceFieldOperation[]')
+])
+
+_deftype('BnetPresenceQueryRequest', [
+    (1, 'entity_id', 'EntityId'),
+    (2, 'key', 'PresenceFieldKey')
+])
+
+_deftype('BnetPresenceQueryResponse', [
+    (2, 'field', 'PresenceField[]')
+])
+
+_deftype('BnetVariant', [
+    (2, 'boolval', 'bool'),
+    (3, 'intval', 'int64'),
+    (4, 'floatval', 'float'),
+    (5, 'stringva', 'string'),
+    (6, 'blobval', 'bytes'),
+    (7, 'messageval', 'bytes'),
+    (8, 'fourccval', 'string'),
+    (9, 'uintval', 'uint64'),
+    (10, 'entityidval', 'EntityId')
+])
+
+_deftype('BnetLogonUpdateRequest', [
+    (1, 'error_code', 'uint32')
+])
+
+_deftype('BnetLogonResult', [
+    (1, 'error_code', 'uint32'),
+    (2, 'account', 'EntityId'),
+    (3, 'game_account', 'EntityId[]'),
+    (4, 'email', 'string'),
+    (5, 'available_region', 'uint32[]'),
+    (6, 'connected_region', 'uint32'),
+    (7, 'battle_tag', 'string'),
+    (8, 'geoip_country', 'string')
+])
+
+_deftype('BnetEchoRequest', [
+    (1, 'time', 'fixed64'),
+    (2, 'network_only', 'bool'),
+    (3, 'payload', 'bytes')
+])
+
+_deftype('BnetEchoResponse', [
+    (1, 'time', 'fixed64'),
+    (2, 'payload', 'bytes')
 ])
 
 _deftype('BnetProcessId', [
@@ -424,10 +569,6 @@ _deftype('BnetModuleLoadRequest', [
 _deftype('BnetEncryptRequest', [
 ])
 
-_deftype('BnetLogonResult', [
-    (1, 'ErrorCode', 'uint32')
-])
-
 _deftype('BnetModuleMessageRequest', [
     (1, 'ModuleId', 'int32'),
     (2, 'Message', 'bytes')
@@ -438,9 +579,13 @@ _deftype('BnetModuleNotification', [
     (3, 'Result', 'uint32')
 ])
 
+_deftype('BnetDisconnectRequest', [
+    (1, 'error_code', 'uint32')
+])
+
 _deftype('BnetLogonQueueUpdateRequest', [
     (1, 'Position', 'uint32'),
-    (2, 'EsimatedTime', 'uint64'),
+    (2, 'EstimatedTime', 'uint64'),
     (3, 'EtaDeviationInSec', 'uint64')
 ])
 
@@ -453,6 +598,153 @@ _deftype('BnetPacketHeader', [
     (6, 'Status', 'uint32'),
     (7, 'Error', 'BnetErrorInfo[]'),
     (8, 'Timeout', 'uint64')
+])
+
+# == Notification ==
+_deftype('BnetNotification', [
+    (1, 'sender_id', 'EntityId'),
+    (2, 'target_id', 'EntityId'),
+    (3, 'type', 'string'),
+    (4, 'attribute', 'Attribute[]'),
+    (5, 'sender_account_id', 'EntityId'),
+    (6, 'target_account_id', 'EntityId'),
+    (7, 'sender_battle_tag', 'string')
+])
+
+# === Resource Service ===
+_deftype('ContentHandleRequest', [
+    (1, 'program_id', 'fixed32'),
+    (2, 'stream_id', 'fixed32'),
+    (3, 'locale', 'fixed32')
+])
+
+# === Account Service ===
+_deftype('PrivacyInfo', [
+    (3, 'is_using_rid', 'bool'),
+    (4, 'real_id_visible_for_view_friends', 'bool'),
+    (5, 'is_hidden_from_friend_finder', 'bool'),
+    # (PRIVACY_ME, PRIVACY_FRIENDS, PRIVACY_EVERYONE)
+    (6, 'game_info_privacy', 'enum')
+])
+
+_deftype('ParentalControlInfo', [
+    (3, 'timezone', 'string'),
+    (4, 'minutes_per_day', 'uint32'),
+    (5, 'minutes_per_week', 'uint32'),
+    (6, 'can_receive_voice', 'bool'),
+    (7, 'can_send_voice', 'bool'),
+    (8, 'play_schedule', 'bool[]')
+])
+
+_deftype('RegionTag', [
+    (1, 'region', 'fixed32'),
+    (2, 'tag', 'fixed32')
+])
+
+_deftype('ProgramTag', [
+    (1, 'program', 'fixed32'),
+    (2, 'tag', 'fixed32')
+])
+
+_deftype('AccountFieldTags', [
+    (1, 'account_level_info_tag', 'fixed32'),
+    (2, 'privacy_info_tag', 'fixed32'),
+    (3, 'parental_control_info_tag', 'fixed32'),
+    (4, 'game_level_info_tags', 'ProgramTag[]'),
+    (5, 'game_status_tags', 'ProgramTag[]'),
+    (6, 'game_account_tags', 'RegionTag[]')
+])
+
+_deftype('GameLevelInfo', [
+    (3, 'is_started_edition', 'bool'),
+    (4, 'is_trial', 'bool'),
+    (5, 'is_lifetime', 'bool'),
+    (6, 'is_restricted', 'bool'),
+    (7, 'is_beta', 'bool'),
+    (8, 'name', 'string'),
+    (9, 'program', 'fixed32'),
+    (10, 'licenses', 'AccountLicense[]'),
+    (11, 'has_realm_permissions', 'uint32')
+])
+
+_deftype('GameStatus', [
+    (4, 'is_suspended', 'bool'),
+    (5, 'is_banned', 'bool'),
+    (6, 'suspension_expires', 'uint64'),
+    (7, 'program', 'fixed32')
+])
+
+_deftype('GameAccountHandle', [
+    (1, 'id', 'fixed32'),
+    (2, 'program', 'fixed32'),
+    (3, 'region', 'uint32')
+])
+
+_deftype('GameAccountList', [
+    (3, 'region', 'uint32'),
+    (4, 'handle', 'GameAccountHandle[]')
+])
+
+_deftype('AccountLicense', [
+    (1, 'id', 'uint32'),
+    (2, 'expires', 'uint64')
+])
+
+_deftype('AccountLevelInfo', [
+    (3, 'licenses', 'AccountLicense[]'),
+    (4, 'default_currency', 'fixed32'),
+    (5, 'country', 'string'),
+    (6, 'preferred_region', 'uint32')
+])
+
+_deftype('AccountState', [
+    (1, 'account_level_info', 'AccountLevelInfo'),
+    (2, 'privacy_info', 'PrivacyInfo'),
+    (3, 'parental_control_info', 'ParentalControlInfo'),
+    (5, 'game_level_info', 'GameLevelInfo[]'),
+    (6, 'game_status', 'GameStatus[]'),
+    (7, 'game_accounts', 'GameAccountList[]'),
+])
+
+_deftype('AccountFieldOptions', [
+    (1, 'all_fields', 'bool'),
+    (2, 'field_account_level_info', 'bool'),
+    (3, 'field_privacy_info', 'bool'),
+    (4, 'field_parental_control_info', 'bool'),
+    (6, 'field_game_level_info', 'bool'),
+    (7, 'field_game_status', 'bool'),
+    (8, 'field_game_accounts', 'bool')
+])
+
+_deftype('GetAccountStateRequest', [
+    (1, 'entity_id', 'EntityId'),
+    (2, 'program', 'uint32'),
+    (3, 'region', 'uint32'),
+    (10, 'options', 'AccountFieldOptions'),
+    (11, 'tags', 'AccountFieldTags'),
+])
+
+_deftype('GetAccountStateResponse', [
+    (1, 'state', 'AccountState'),
+    (2, 'tags', 'AccountFieldTags')
+])
+
+# Channel Invitation Service
+_deftype('SubscribeChannelInvitationRequest', [
+    (1, 'agent_id', 'EntityId'),
+    (2, 'object_id', 'uint64')
+])
+
+_deftype('InvitationCollection', [
+    (1, 'service_type', 'uint32'),
+    (2, 'max_received_invitations', 'uint32'),
+    (3, 'object_id', 'uint64'),
+    (4, 'received_invitation', 'Invitation[]')
+])
+
+_deftype('SubscribeChannelInvitationResponse', [
+    (1, 'collection', 'InvitationCollection[]'),
+    (2, 'received_invitation', 'Invitation[]')
 ])
 
 _build_types()
