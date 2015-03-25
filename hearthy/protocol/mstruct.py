@@ -38,6 +38,18 @@ class MBasicFixed:
             else:
                 assert False, 'Unsupported size'
 
+    def encode_field_val(self, val, field_number, buf, offset=0):
+        buf[offset] = (serialize.WTYPE_FIXED32 if self._n_bytes == 4 else serialize.WTYPE_FIXED64) | field_number << 3
+        struct.pack_into('<' + self._s, buf, offset + 1, val)
+        return offset + self._n_bytes + 1
+
+    def encode_field_arr(self, arr, field_number, buf, offset=0):
+        buf[offset] = serialize.WTYPE_LEN_DELIM | field_number << 3
+        size = len(arr) * self._n_bytes
+        offset = serialize.write_varint(size, buf, offset + 1)
+        struct.pack_into('<' + str(len(arr)) + self._s, buf, offset, *arr)
+        return offset + size
+
     def decode_buf(self, buf, offset=0, end=None):
         if end is None:
             end = offset + self._n_bytes
@@ -52,7 +64,7 @@ class MBasicFixed:
 class MBytes:
     @classmethod
     def encode_buf(cls, val, buf, offset):
-        end = offset = len(val)
+        end = offset + len(val)
         buf[offset:end] = val
         return end
 
@@ -102,8 +114,10 @@ class MStruct:
                     buf[offset] = serialize.WTYPE_LEN_DELIM | k << 3
                     offset = self._encode_buf_val_len_delim(val, serialize.write_packed_varint, buf, offset+1)
                 elif isinstance(typehandler, MBasicFixed):
-                    raise NotImplementedError
+                    # use packed encoding
+                    offset = typehandler.encode_field_arr(val, k, buf, offset)
                 else:
+                    # non-packed encoding
                     for item in val:
                         buf[offset] = serialize.WTYPE_LEN_DELIM  | k << 3
                         offset = self._encode_buf_val_len_delim(item, typehandler.encode_buf, buf, offset+1)
@@ -112,7 +126,7 @@ class MStruct:
                     buf[offset] = serialize.WTYPE_VARINT | k << 3
                     offset = serialize.write_varint(val, buf, offset+1)
                 elif isinstance(typehandler, MBasicFixed):
-                    raise NotImplementedError
+                    offset = typehandler.encode_field_val(val, k, buf, offset)
                 else:
                     buf[offset] = serialize.WTYPE_LEN_DELIM | k << 3
                     offset = self._encode_buf_val_len_delim(val, typehandler.encode_buf, buf, offset+1)
@@ -152,6 +166,8 @@ class MStruct:
             elif wtype == serialize.WTYPE_VARINT:
                 val, offset = typehandler.decode_buf(buf, offset+1)
             elif wtype == serialize.WTYPE_FIXED32:
+                val, offset = typehandler.decode_buf(buf, offset+1)
+            elif wtype == serialize.WTYPE_FIXED64:
                 val, offset = typehandler.decode_buf(buf, offset+1)
             else:
                 raise DecodeError('Unhandled wire type {0}'.format(wtype))
