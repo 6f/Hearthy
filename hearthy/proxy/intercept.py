@@ -10,9 +10,6 @@ class SplitterBuf(SimpleBuf):
     In principle same functionality as hearthy.protocol.utils.Splitter.
     This version has the benefit of correctly handling loop breaks.
     """
-    def __init__(self):
-        super().__init__()
-
     def pull_segment(self):
         segment = self.peek_segment()
         if segment is not None:
