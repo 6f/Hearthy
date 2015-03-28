@@ -398,7 +398,8 @@ _deftype('BnetLogonRequest', [
     (9, 'disconnect_on_cookie_fail', 'bool'),
     (10, 'allow_logon_queue_notifications', 'bool'),
     (11, 'web_client_verification', 'bool'),
-    (12, 'cached_web_credentials', 'bytes')
+    (12, 'cached_web_credentials', 'bytes'),
+    (14, 'user_agent', 'string')
 ])
 
 _deftype('EntityId', [
