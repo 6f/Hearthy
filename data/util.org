@@ -1,0 +1,15 @@
+| Fun                                        |  Type | Sys | Body                    |
+|--------------------------------------------+-------+-----+-------------------------|
+| ConnectAPI.ValidateAchieve                 | 0x1cc |   0 | ValidateAchieve         |
+| ConnectAPI.TriggerLaunchEvent              | 0x12a |   0 | TriggerLaunchDayEvent   |
+| ConnectAPI.TrackClient                     | 0x0e4 |   0 | OneClientTracking       |
+| ConnectAPI.SubmitThirdPartyPurchaseReceipt | 0x125 |   1 | SubmitThirdPartyReceipt |
+| ConnectAPI.SetProgress                     | 0x0e6 |   0 | SetProgress             |
+| ConnectAPI.SetDefaultCardBack              | 0x123 |   0 | SetCardBack             |
+| ConnectAPI.SetDeckCardBack                 | 0x123 |   1 | SetCardBack             |
+| ConnectAPI.SetClientOptionULong            | 0x0ef |   0 | SetOptions              |
+| ConnectAPI.SetClientOptionLong             | 0x0ef |   0 | SetOptions              |
+| ConnectAPI.SetAdventureOptions             | 0x136 |   0 | SetAdventureOptions     |
+| ConnectAPI.SendDeckData                    | 0x0de |   0 | DeckCardData            |
+| ConnectAPI.SendAckCards                    | 0x0df |   0 | UtilRequestPhase        |
+| ConnectAPI.RequestAssetsVersion            | 0x12f |   0 | GetAssetsVersion        |

@@ -1,0 +1,16 @@
+bnet.protocol.notification.NotificationListener
+bnet.protocol.friends.FriendsService
+bnet.protocol.channel_invitation.ChannelInvitationService
+bnet.protocol.resources.Resources
+bnet.protocol.account.AccountService
+bnet.protocol.presence.PresenceService
+bnet.protocol.authentication.AuthenticationServer
+bnet.protocol.connection.ConnectionService
+bnet.protocol.authentication.AuthenticationClient
+bnet.protocol.game_utilities.GameUtilities
+bnet.protocol.resources.Resources
+bnet.protocol.notification.NotificationServer
+bnet.protocol.game_master.GameMasterSubscriber
+bnet.protocol.game_master.GameMaster
+bnet.protocol.game_master.GameFactorySubscriber
+bnet.protocol.friends.FriendsNotify

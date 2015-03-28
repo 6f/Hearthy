@@ -1,6 +1,6 @@
 import logging
 import time
-from hearthy.protocol import mtypes
+from hearthy.protocol import mtypes, pegasus_util
 from hearthy.bnet import rpcdef, rpc, utils
 from hearthy.proxy import pipe
 from hearthy.bnet.decode import SplitterBuf
@@ -104,20 +104,21 @@ class AuthenticationServer(rpcdef.AuthenticationServer.Server):
               Position=1,
               EstimatedTime=9223372036854775807,
               EtaDeviationInSec=0)
-        #self._auth_client.LogonQueueEnd()
+        self._auth_client.LogonQueueEnd()
 
         #self.add_module(auth.ThumbprintModule())
         #self.add_module(auth.PasswordAuthenticator('waifu@blizzard.com', 'pass'))
-        #self._auth_client.LogonUpdate(error_code=0)
-        #self._auth_client.LogonComplete(
-        #    error_code=0,
-        #    account=mtypes.EntityId(high=0xdead, low=0xbeef),
-        #    game_account=[mtypes.EntityId(high=0x1CEB00DA, low=0xBAADF00D)],
-        #    email='email',
-        #    available_region=[0],
-        #    connected_region=0,
-        #    battle_tag='bt',
-        #    geoip_country='country')
+        
+        self._auth_client.LogonUpdate(error_code=0)
+        self._auth_client.LogonComplete(
+            error_code=0,
+            account=mtypes.EntityId(high=0xdead, low=0xbeef),
+            game_account=[mtypes.EntityId(high=0x1CEB00DA, low=0xBAADF00D)],
+            email='email',
+            available_region=[0],
+            connected_region=0,
+            battle_tag='bt',
+            geoip_country='country')
 
 class PresenceServiceServer(rpcdef.PresenceService.Server):
     pass
@@ -154,6 +155,16 @@ class AccountServiceServer(rpcdef.AccountService.Server):
         state = mtypes.AccountState(account_level_info=account_level_info)
         return mtypes.GetAccountStateResponse(state=state)
 
+class GameUtilitiesServer(rpcdef.GameUtilities.Server):
+    def process_client_request(self, req):
+        blobval = req.attributes[0].value.blobval
+        assert(len(blobval) == 2)
+        request_type = blobval[0] | (blobval[1] << 8)
+
+        if request_type == 303:
+            assets_version = pegasus_util.AssetsVersionResponse(version=0)
+            return pegasus_util.to_client_response(assets_version)
+
 class ChannelInvitationServiceServer(rpcdef.ChannelInvitationService.Server):
     pass
 
@@ -178,6 +189,7 @@ class ClientHandler(rpc.RpcBroker):
         self.add_export(ResourcesServiceServer())
         self.add_export(AccountServiceServer())
         self.add_export(PresenceServiceServer())
+        self.add_export(GameUtilitiesServer())
 
     def send_data(self, buf):
         self._send_buf.append(buf)

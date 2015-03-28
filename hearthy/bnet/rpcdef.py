@@ -1,4 +1,4 @@
-from hearthy.protocol import mtypes
+from hearthy.protocol import mtypes, game_utilities
 from hearthy.bnet import rpc
 
 NOT_IMPLEMENTED = None
@@ -63,4 +63,14 @@ AuthenticationClient = rpc.defservice('bnet.protocol.authentication.Authenticati
     ('LogonQueueUpdate',    12, mtypes.BnetLogonQueueUpdateRequest, NOT_IMPLEMENTED),
     ('LogonQueueEnd',       13, mtypes.BnetNoData, NOT_IMPLEMENTED), 
     ('GameAccountSelected', 14, NOT_IMPLEMENTED, NOT_IMPLEMENTED), 
+])
+
+GameUtilities = rpc.defservice('bnet.protocol.game_utilities.GameUtilities', [
+    ('process_client_request', 1, game_utilities.ClientRequest, game_utilities.ClientResponse),
+    ('presence_channel_created', 2, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
+    ('get_player_variables', 3, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
+    ('get_load', 5, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
+    ('process_server_request', 6, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
+    ('notify_game_account_online', 7, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
+    ('notify_game_account_offline', 8, NOT_IMPLEMENTED, NOT_IMPLEMENTED),
 ])
