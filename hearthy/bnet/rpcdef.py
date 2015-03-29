@@ -1,4 +1,4 @@
-from hearthy.protocol import mtypes, game_utilities
+from hearthy.protocol import mtypes, game_utilities, account
 from hearthy.bnet import rpc
 
 NOT_IMPLEMENTED = None
@@ -21,7 +21,8 @@ ResourcesService = rpc.defservice('bnet.protocol.resources.Resources', [
 ])
 
 AccountService = rpc.defservice('bnet.protocol.account.AccountService', [
-    ('get_account_state', 30, mtypes.GetAccountStateRequest, mtypes.GetAccountStateResponse)
+    ('get_account_state', 30, mtypes.GetAccountStateRequest, mtypes.GetAccountStateResponse),
+    ('get_game_session_info', 34, account.GetGameSessionInfoRequest, account.GetGameSessionInfoResponse)
 ])
 
 PresenceService = rpc.defservice('bnet.protocol.presence.PresenceService', [

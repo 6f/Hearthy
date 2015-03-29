@@ -1,6 +1,6 @@
 import logging
 import time
-from hearthy.protocol import mtypes, pegasus_util
+from hearthy.protocol import mtypes, pegasus_util, account
 from hearthy.bnet import rpcdef, rpc, utils
 from hearthy.proxy import pipe
 from hearthy.bnet.decode import SplitterBuf
@@ -154,6 +154,11 @@ class AccountServiceServer(rpcdef.AccountService.Server):
         )
         state = mtypes.AccountState(account_level_info=account_level_info)
         return mtypes.GetAccountStateResponse(state=state)
+
+    def get_game_session_info(self, req):
+        resp = account.GetGameSessionInfoResponse(
+            session_info=account.GameSessionInfo(start_time=int(time.time())))
+        return resp
 
 class GameUtilitiesServer(rpcdef.GameUtilities.Server):
     def process_client_request(self, req):
