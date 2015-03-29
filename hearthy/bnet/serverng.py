@@ -173,6 +173,16 @@ class GameUtilitiesServer(rpcdef.GameUtilities.Server):
             
             update_login_response = pegasus_util.UpdateLoginComplete()
             return pegasus_util.to_client_response(update_login_response)
+        elif request_type == pegasus_util.SetProgress.packet_id:
+            set_progress_request = pegasus_util.UpdateLogin.decode_buf(request_body)
+            self.logger.info("Got set progress request: %r", set_progress_request)
+
+            set_progress_response = pegasus_util.SetProgressResponse(
+                value = 1, # SUCCESS
+            )
+            return pegasus_util.to_client_response(set_progress_response)
+
+        self.logger.warn('Unhandled info packet with id=%d', request_type)
 
 class ChannelInvitationServiceServer(rpcdef.ChannelInvitationService.Server):
     pass
