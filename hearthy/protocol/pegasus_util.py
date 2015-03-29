@@ -21,6 +21,6 @@ def to_client_response(packet):
     packet_id = packet.packet_id
 
     return game_utilities.ClientResponse(attributes=[
-        mtypes.Attribute(name='?',value=mtypes.BnetVariant(intval=999999)),
-        mtypes.Attribute(name='?',value=mtypes.BnetVariant(blobval=b'\xff\xff\xff\xff\xff\xff\xff\xff'))#value=mtypes.BnetVariant(blobval=bytes(buf[:end])))
+        mtypes.Attribute(name='?',value=mtypes.BnetVariant(intval=packet_id)),
+        mtypes.Attribute(name='?',value=mtypes.BnetVariant(blobval=bytes(buf[:end])))
     ])
