@@ -158,12 +158,21 @@ class AccountServiceServer(rpcdef.AccountService.Server):
 class GameUtilitiesServer(rpcdef.GameUtilities.Server):
     def process_client_request(self, req):
         blobval = req.attributes[0].value.blobval
-        assert(len(blobval) == 2)
-        request_type = blobval[0] | (blobval[1] << 8)
 
-        if request_type == 303:
+        # decode request
+        request_type = blobval[0] | (blobval[1] << 8)
+        request_body = blobval[2:]
+
+        if request_type == 303: # request for assets version
+            assert len(request_body) == 0, "???"
             assets_version = pegasus_util.AssetsVersionResponse(version=0)
             return pegasus_util.to_client_response(assets_version)
+        elif request_type == 0xcd:
+            update_login_request = pegasus_util.UpdateLogin.decode_buf(request_body)
+            self.logger.info("Got update login request: %r", update_login_request)
+            
+            update_login_response = pegasus_util.UpdateLoginComplete()
+            return pegasus_util.to_client_response(update_login_response)
 
 class ChannelInvitationServiceServer(rpcdef.ChannelInvitationService.Server):
     pass
